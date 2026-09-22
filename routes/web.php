@@ -22,6 +22,8 @@ use App\Livewire\Studio\Calendar\Index as CalendarIndex;
 use App\Livewire\Studio\Clients\Create as ClientsCreate;
 use App\Livewire\Studio\Clients\Edit as ClientsEdit;
 use App\Livewire\Studio\Clients\Index as ClientsIndex;
+use App\Livewire\Studio\Consultations\Create as ConsultationsCreate;
+use App\Livewire\Studio\Consultations\Edit as ConsultationsEdit;
 use App\Livewire\Studio\Consultations\Index as ConsultationsIndex;
 use App\Livewire\Studio\Dashboard as StudioDashboard;
 use App\Livewire\Studio\Files\Index as FilesIndex;
@@ -106,6 +108,8 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/clients/create', ClientsCreate::class)->name('clients.create');
         Route::get('/clients/{client}/edit', ClientsEdit::class)->name('clients.edit');
         Route::get('/consultations', ConsultationsIndex::class)->name('consultations.index');
+        Route::get('/consultations/create', ConsultationsCreate::class)->name('consultations.create');
+        Route::get('/consultations/{slot}/edit', ConsultationsEdit::class)->name('consultations.edit');
         Route::get('/packages', PackagesIndex::class)->name('packages.index');
         Route::get('/packages/create', PackagesCreate::class)->name('packages.create');
         Route::get('/packages/{package}/edit', PackagesEdit::class)->name('packages.edit');

@@ -87,6 +87,19 @@
                     @endif
                 </div>
 
+                @if ($kind === 'consultation_slot')
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div>
+                        <label for="sched-slot-title" class="block text-xs font-medium text-[#16120f]/55 mb-1">Title <span class="text-[#16120f]/30">(optional)</span></label>
+                        <input type="text" wire:model="title" id="sched-slot-title" placeholder="e.g. Discovery call" class="w-full rounded-xl bg-[#f6f1ea] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a574]">
+                    </div>
+                    <div>
+                        <label for="sched-slot-desc" class="block text-xs font-medium text-[#16120f]/55 mb-1">Description <span class="text-[#16120f]/30">(optional)</span></label>
+                        <input type="text" wire:model="notes" id="sched-slot-desc" placeholder="What this slot covers…" class="w-full rounded-xl bg-[#f6f1ea] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c4a574]">
+                    </div>
+                </div>
+                @endif
+
                 @if ($kind === 'project_event')
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div>

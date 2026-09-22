@@ -74,13 +74,22 @@ class Index extends Component
             : null;
 
         if ($this->kind === 'consultation_slot') {
+            $this->validate([
+                'title' => ['nullable', 'string', 'max:180'],
+                'notes' => ['nullable', 'string', 'max:2000'],
+            ]);
+
             try {
                 ConsultationSlot::query()->create([
                     'organization_id' => $orgId,
                     'staff_user_id' => auth()->id(),
                     'date' => $this->date,
-                    'start_time' => $this->start_time,
-                    'end_time' => $this->end_time ?: Carbon::parse($this->start_time)->addHour()->format('H:i'),
+                    'start_time' => ConsultationSlot::normalizeTime($this->start_time),
+                    'end_time' => ConsultationSlot::normalizeTime(
+                        $this->end_time ?: Carbon::parse($this->start_time)->addHour()->format('H:i')
+                    ),
+                    'title' => $this->title ?: null,
+                    'description' => $this->notes ?: null,
                     'timezone' => auth()->user()->timezone ?? 'Asia/Kolkata',
                     'is_available' => true,
                 ]);
@@ -329,13 +338,17 @@ class Index extends Component
 
             $items[] = [
                 'id' => 'slot-'.$slot->id,
-                'title' => 'Consultation slot open',
+                'title' => $slot->title ?: 'Consultation slot',
                 'start' => $start->toIso8601String(),
                 'end' => $end->toIso8601String(),
                 'allDay' => false,
                 'type' => 'Availability',
-                'meta' => $slot->start_time.' – '.$slot->end_time.' · '.($slot->staff?->name ?? 'Studio'),
-                'url' => route('app.consultations.index'),
+                'meta' => collect([
+                    $slot->formattedStart().' – '.$slot->formattedEnd(),
+                    $slot->staff?->name,
+                    $slot->description ? \Illuminate\Support\Str::limit($slot->description, 40) : null,
+                ])->filter()->implode(' · '),
+                'url' => route('app.consultations.edit', $slot),
                 'deletable' => $canDeleteAny,
                 'recordType' => 'slot',
                 'recordId' => $slot->id,
@@ -429,10 +442,14 @@ class Index extends Component
             $when = Carbon::parse($slot->date->format('Y-m-d').' '.$slot->start_time);
             $items->push([
                 'sort' => $when,
-                'label' => 'Consultation slot open',
-                'meta' => $slot->start_time.' – '.$slot->end_time.' · '.($slot->staff?->name ?? 'Studio'),
+                'label' => $slot->title ?: 'Consultation slot',
+                'meta' => collect([
+                    $slot->formattedStart().' – '.$slot->formattedEnd(),
+                    $slot->staff?->name,
+                    $slot->description ? \Illuminate\Support\Str::limit($slot->description, 40) : null,
+                ])->filter()->implode(' · '),
                 'badge' => 'Availability',
-                'href' => route('app.consultations.index'),
+                'href' => route('app.consultations.edit', $slot),
                 'deletable' => false,
                 'id' => null,
             ]);

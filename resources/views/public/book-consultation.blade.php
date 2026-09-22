@@ -16,9 +16,22 @@
             <label class="text-sm">Phone<input required name="phone" class="mt-1 w-full rounded-2xl bg-[#f6f1ea] px-4 py-3"></label>
             <label class="text-sm">Available slot
                 <select required name="slot_id" class="mt-1 w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
-                    @foreach (\App\Models\ConsultationSlot::withoutTenant()->where('is_available', true)->whereDate('date', '>=', now())->orderBy('date')->get() as $slot)
-                        <option value="{{ $slot->id }}">{{ $slot->date->toFormattedDateString() }} · {{ $slot->start_time }}</option>
-                    @endforeach
+                    <option value="">Choose a slot…</option>
+                    @forelse (
+                        \App\Models\ConsultationSlot::withoutTenant()
+                            ->where('is_available', true)
+                            ->whereDate('date', '>=', now()->toDateString())
+                            ->orderBy('date')
+                            ->orderBy('start_time')
+                            ->get() as $slot
+                    )
+                        <option value="{{ $slot->id }}">
+                            {{ $slot->label() }}
+                            @if ($slot->description) — {{ \Illuminate\Support\Str::limit($slot->description, 60) }} @endif
+                        </option>
+                    @empty
+                        <option value="" disabled>No open slots right now</option>
+                    @endforelse
                 </select>
             </label>
             <label class="text-sm">Notes<textarea name="notes" class="mt-1 w-full rounded-2xl bg-[#f6f1ea] px-4 py-3"></textarea></label>
