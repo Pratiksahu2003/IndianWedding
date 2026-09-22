@@ -38,7 +38,6 @@
         ],
         'Delivery' => [
             ['app.files.index', 'Files', 'files', 'app.files.*'],
-            ['app.messages.index', 'Messages', 'messages', 'app.messages.*'],
         ],
         'Studio' => [
             ['app.packages.index', 'Packages', 'packages', 'app.packages.*'],

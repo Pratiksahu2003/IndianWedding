@@ -28,7 +28,6 @@ use App\Livewire\Studio\Leads\Form as LeadForm;
 use App\Livewire\Studio\Leads\Index as LeadsIndex;
 use App\Livewire\Studio\Leads\Pipeline as LeadsPipeline;
 use App\Livewire\Studio\Leads\Show as LeadShow;
-use App\Livewire\Studio\Messages\Index as MessagesIndex;
 use App\Livewire\Studio\Packages\Index as PackagesIndex;
 use App\Livewire\Studio\Packages\Show as PackageShow;
 use App\Livewire\Studio\Payments\Index as PaymentsIndex;
@@ -103,7 +102,6 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/invoices', InvoicesIndex::class)->name('invoices.index');
         Route::redirect('/galleries', '/app/projects');
         Route::get('/files', FilesIndex::class)->name('files.index');
-        Route::get('/messages', MessagesIndex::class)->name('messages.index');
         Route::get('/reports', ReportsIndex::class)->name('reports.index');
         Route::get('/settings', SettingsIndex::class)->name('settings.index');
         Route::get('/settings/payments', PaymentGatewaySettings::class)->name('settings.payments');

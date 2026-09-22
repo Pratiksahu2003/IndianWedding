@@ -32,10 +32,21 @@ class ProjectPolicy
         return $project->team()->where('user_id', $user->id)->exists();
     }
 
+    public function create(User $user): bool
+    {
+        return $user->canInOrganization('projects.manage', Tenant::current());
+    }
+
     public function update(User $user, Project $project): bool
     {
         return $user->canInOrganization('projects.manage', Tenant::current())
             && $project->organization_id === Tenant::id();
+    }
+
+    public function delete(User $user, Project $project): bool
+    {
+        return $user->canDeleteInOrganization(Tenant::current())
+            && $this->update($user, $project);
     }
 
     public function assign(User $user, Project $project): bool

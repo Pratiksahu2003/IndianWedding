@@ -31,4 +31,16 @@ class PaymentPolicy
     {
         return $user->canInOrganization('payments.manage', Tenant::current());
     }
+
+    public function update(User $user, Payment $payment): bool
+    {
+        return $user->canInOrganization('payments.manage', Tenant::current())
+            && $payment->organization_id === Tenant::id();
+    }
+
+    public function delete(User $user, Payment $payment): bool
+    {
+        return $user->canDeleteInOrganization(Tenant::current())
+            && $this->update($user, $payment);
+    }
 }

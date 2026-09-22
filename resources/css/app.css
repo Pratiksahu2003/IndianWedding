@@ -131,6 +131,13 @@
         --fc-page-bg-color: #fff;
         --fc-neutral-bg-color: #f6f1ea;
         font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+        width: 100%;
+    }
+
+    .studio-calendar .fc .fc-scrollgrid,
+    .studio-calendar .fc .fc-daygrid-body,
+    .studio-calendar .fc .fc-scrollgrid-sync-table {
+        width: 100% !important;
     }
 
     .studio-calendar .fc-toolbar-title {

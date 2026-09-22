@@ -26,4 +26,21 @@ class InvoicePolicy
 
         return $invoice->customer?->user_id === $user->id;
     }
+
+    public function create(User $user): bool
+    {
+        return $user->canInOrganization('invoices.manage', Tenant::current());
+    }
+
+    public function update(User $user, Invoice $invoice): bool
+    {
+        return $user->canInOrganization('invoices.manage', Tenant::current())
+            && $invoice->organization_id === Tenant::id();
+    }
+
+    public function delete(User $user, Invoice $invoice): bool
+    {
+        return $user->canDeleteInOrganization(Tenant::current())
+            && $this->update($user, $invoice);
+    }
 }

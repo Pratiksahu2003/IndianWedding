@@ -36,16 +36,16 @@ enum Role: string
             self::Manager => [
                 'leads.manage', 'projects.manage', 'payments.manage', 'reports.view',
                 'clients.manage', 'team.assign', 'consultations.manage', 'invoices.manage',
-                'files.manage', 'galleries.manage', 'messages.manage', 'packages.view', 'calendar.manage',
+                'files.manage', 'galleries.manage', 'packages.view', 'calendar.manage',
             ],
             self::Photographer => [
-                'projects.assigned', 'files.upload', 'tasks.assigned', 'calendar.view', 'calendar.manage', 'messages.manage',
+                'projects.assigned', 'files.upload', 'tasks.assigned', 'calendar.view', 'calendar.manage',
             ],
             self::Videographer => [
-                'projects.assigned', 'files.upload', 'tasks.assigned', 'calendar.view', 'calendar.manage', 'messages.manage',
+                'projects.assigned', 'files.upload', 'tasks.assigned', 'calendar.view', 'calendar.manage',
             ],
             self::Editor => [
-                'projects.assigned', 'files.raw', 'files.upload', 'tasks.assigned', 'calendar.manage', 'messages.manage',
+                'projects.assigned', 'files.raw', 'files.upload', 'tasks.assigned', 'calendar.manage',
             ],
             self::Client => [
                 'portal.view', 'gallery.view', 'payments.own', 'invoices.own', 'files.download',

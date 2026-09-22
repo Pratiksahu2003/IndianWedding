@@ -26,7 +26,6 @@ enum Permission: string
     case InvoicesManage = 'invoices.manage';
     case InvoicesOwn = 'invoices.own';
     case ClientsManage = 'clients.manage';
-    case MessagesManage = 'messages.manage';
     case CalendarManage = 'calendar.manage';
     case CalendarView = 'calendar.view';
     case TasksAssigned = 'tasks.assigned';
@@ -58,7 +57,6 @@ enum Permission: string
             self::InvoicesManage => 'Invoices',
             self::InvoicesOwn => 'Own invoices',
             self::ClientsManage => 'Clients',
-            self::MessagesManage => 'Messages',
             self::CalendarManage => 'Calendar (full)',
             self::CalendarView => 'Calendar (view)',
             self::TasksAssigned => 'Assigned tasks',
@@ -73,7 +71,7 @@ enum Permission: string
             self::BillingManage, self::PaymentsManage, self::PaymentsOwn, self::InvoicesManage, self::InvoicesOwn => 'Finance',
             self::LeadsManage, self::ClientsManage, self::ConsultationsManage => 'Pipeline',
             self::ProjectsManage, self::ProjectsAssigned, self::TeamAssign, self::TasksAssigned, self::CalendarManage, self::CalendarView => 'Production',
-            self::FilesManage, self::FilesUpload, self::FilesRaw, self::FilesDownload, self::GalleriesManage, self::GalleryView, self::MessagesManage => 'Delivery',
+            self::FilesManage, self::FilesUpload, self::FilesRaw, self::FilesDownload, self::GalleriesManage, self::GalleryView => 'Delivery',
             self::PackagesManage, self::PackagesView => 'Packages',
             self::UsersManage, self::PermissionsManage, self::SettingsManage, self::ReportsView => 'Studio',
             self::PortalView => 'Client',

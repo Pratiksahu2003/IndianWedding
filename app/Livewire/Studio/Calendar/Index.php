@@ -74,15 +74,21 @@ class Index extends Component
             : null;
 
         if ($this->kind === 'consultation_slot') {
-            ConsultationSlot::query()->create([
-                'organization_id' => $orgId,
-                'staff_user_id' => auth()->id(),
-                'date' => $this->date,
-                'start_time' => $this->start_time,
-                'end_time' => $this->end_time ?: Carbon::parse($this->start_time)->addHour()->format('H:i'),
-                'timezone' => auth()->user()->timezone ?? 'Asia/Kolkata',
-                'is_available' => true,
-            ]);
+            try {
+                ConsultationSlot::query()->create([
+                    'organization_id' => $orgId,
+                    'staff_user_id' => auth()->id(),
+                    'date' => $this->date,
+                    'start_time' => $this->start_time,
+                    'end_time' => $this->end_time ?: Carbon::parse($this->start_time)->addHour()->format('H:i'),
+                    'timezone' => auth()->user()->timezone ?? 'Asia/Kolkata',
+                    'is_available' => true,
+                ]);
+            } catch (\Illuminate\Database\QueryException $e) {
+                $this->addError('start_time', 'A consultation slot already exists at this date and time.');
+
+                return;
+            }
 
             session()->flash('status', 'Consultation slot added to the calendar.');
 
@@ -219,9 +225,11 @@ class Index extends Component
     {
         [$start, $end] = $this->visibleRange();
 
-        $this->dispatch('calendar-refreshed', events: $this->buildCalendarEvents(
-            $this->fetchEvents($start, $end),
-        ));
+        $this->dispatch(
+            'calendar-refreshed',
+            events: $this->buildCalendarEvents($this->fetchEvents($start, $end)),
+            month: $this->month,
+        );
     }
 
     /**

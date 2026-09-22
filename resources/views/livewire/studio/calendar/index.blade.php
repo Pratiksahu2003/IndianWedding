@@ -156,7 +156,7 @@
     {{-- FullCalendar --}}
     <div x-show="view==='calendar'" x-cloak>
         <div class="grid gap-4 lg:grid-cols-3">
-            <div class="lg:col-span-2">
+            <div class="lg:col-span-2 min-w-0">
                 <div
                     wire:ignore
                     x-data="studioCalendar({
@@ -164,9 +164,10 @@
                         canAdd: @js($canAdd),
                         month: @js($month),
                     })"
-                    class="studio-calendar rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 md:p-5"
+                    x-effect="if (view === 'calendar') { $nextTick(() => instance?.updateSize?.()) }"
+                    class="studio-calendar w-full rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5 md:p-5"
                 >
-                    <div x-ref="root"></div>
+                    <div x-ref="root" class="w-full"></div>
                 </div>
             </div>
 

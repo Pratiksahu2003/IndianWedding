@@ -16,8 +16,15 @@ function colorForType(type) {
     return badgeColors[type] ?? { bg: '#f6f1ea', border: '#9b7b4b', text: '#9b7b4b' };
 }
 
+function formatYearMonth(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    return `${year}-${month}`;
+}
+
 function mapEvents(events) {
-    return events.map((event) => {
+    return (events || []).map((event) => {
         const colors = colorForType(event.type);
 
         return {
@@ -52,9 +59,9 @@ export function initStudioCalendar(el, options = {}) {
         onDelete = null,
     } = options;
 
-    let calendar = null;
+    let skipNextDatesSet = true;
 
-    calendar = new Calendar(el, {
+    const calendar = new Calendar(el, {
         plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
         initialView: 'dayGridMonth',
         initialDate: initialDate || undefined,
@@ -67,6 +74,7 @@ export function initStudioCalendar(el, options = {}) {
         firstDay: 1,
         nowIndicator: true,
         dayMaxEvents: 3,
+        eventDisplay: 'block',
         eventTimeFormat: { hour: 'numeric', minute: '2-digit', meridiem: 'short' },
         slotLabelFormat: { hour: 'numeric', minute: '2-digit', meridiem: 'short' },
         events: mapEvents(events),
@@ -78,9 +86,22 @@ export function initStudioCalendar(el, options = {}) {
             onDateClick(info.dateStr.slice(0, 10));
         },
         datesSet(info) {
-            if (onDatesChange) {
-                onDatesChange(info.startStr.slice(0, 7));
+            // First datesSet fires on render — do not sync to Livewire or we
+            // rewrite the month to the padded grid start (often previous month)
+            // and wipe the current month's events.
+            if (skipNextDatesSet) {
+                skipNextDatesSet = false;
+
+                return;
             }
+
+            if (! onDatesChange) {
+                return;
+            }
+
+            // currentStart = start of the active period (1st of month), not the
+            // visible grid which may include trailing days from the prior month.
+            onDatesChange(formatYearMonth(info.view.currentStart));
         },
         eventClick(info) {
             info.jsEvent.preventDefault();
@@ -91,7 +112,7 @@ export function initStudioCalendar(el, options = {}) {
                 extendedProps.meta,
             ].filter(Boolean);
 
-            if (extendedProps.deletable && onDelete) {
+            if (extendedProps.deletable && onDelete && extendedProps.recordType && extendedProps.recordId) {
                 const confirmed = window.confirm(`Remove "${info.event.title}"?`);
                 if (confirmed) {
                     onDelete(extendedProps.recordType, extendedProps.recordId);
@@ -102,6 +123,7 @@ export function initStudioCalendar(el, options = {}) {
 
             if (info.event.url) {
                 window.location.href = info.event.url;
+
                 return;
             }
 
@@ -120,16 +142,41 @@ export function initStudioCalendar(el, options = {}) {
 
     calendar.render();
 
+    // FullCalendar measures width on render; inside flex/x-cloak layouts that
+    // can be 0, which collapses the grid and makes events look like they vanished.
+    const resize = () => calendar.updateSize();
+    requestAnimationFrame(() => {
+        resize();
+        requestAnimationFrame(resize);
+    });
+    window.setTimeout(resize, 50);
+    window.setTimeout(resize, 250);
+
+    let resizeObserver = null;
+    if (typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(() => resize());
+        resizeObserver.observe(el);
+    }
+    window.addEventListener('resize', resize);
+
     return {
         calendar,
         setEvents(newEvents) {
             calendar.removeAllEvents();
             mapEvents(newEvents).forEach((event) => calendar.addEvent(event));
+            resize();
         },
         gotoDate(date) {
+            skipNextDatesSet = true;
             calendar.gotoDate(date);
+            resize();
+        },
+        updateSize() {
+            resize();
         },
         destroy() {
+            window.removeEventListener('resize', resize);
+            resizeObserver?.disconnect();
             calendar.destroy();
         },
     };
@@ -141,6 +188,7 @@ document.addEventListener('alpine:init', () => {
         events: config.events ?? [],
         canAdd: config.canAdd ?? false,
         month: config.month,
+        monthRequestId: 0,
 
         init() {
             this.instance = initStudioCalendar(this.$refs.root, {
@@ -152,17 +200,38 @@ document.addEventListener('alpine:init', () => {
                     this.$dispatch('open-schedule-form');
                 },
                 onDatesChange: (month) => {
-                    if (month !== this.month) {
-                        this.month = month;
-                        this.$wire.set('month', month);
+                    if (month === this.month) {
+                        return;
                     }
+
+                    // Always track the latest visible month locally so a slow
+                    // previous-month refresh cannot wipe the current view.
+                    this.month = month;
+                    const requestId = ++this.monthRequestId;
+                    this.$wire.set('month', month).catch(() => {
+                        if (requestId === this.monthRequestId) {
+                            // keep local month; Livewire will retry on next nav
+                        }
+                    });
                 },
                 onDelete: (recordType, recordId) => {
                     this.$wire.deleteCalendarEvent(recordType, recordId);
                 },
             });
 
-            this.$wire.on('calendar-refreshed', ({ events }) => {
+            this.$wire.on('calendar-refreshed', (payload) => {
+                // Livewire may nest named params: { events, month } or wrap once.
+                const data = payload?.events !== undefined || payload?.month !== undefined
+                    ? payload
+                    : (Array.isArray(payload) ? payload[0] : payload);
+                const events = data?.events ?? (Array.isArray(data) ? data : []);
+                const month = data?.month;
+
+                // Ignore stale refreshes from an older month navigation.
+                if (month && month !== this.month) {
+                    return;
+                }
+
                 this.events = events;
                 this.instance?.setEvents(events);
             });

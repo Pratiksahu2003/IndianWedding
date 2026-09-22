@@ -28,4 +28,10 @@ class PackagePolicy
     {
         return $this->create($user) && $package->organization_id === Tenant::id();
     }
+
+    public function delete(User $user, Package $package): bool
+    {
+        return $user->canDeleteInOrganization(Tenant::current())
+            && $this->update($user, $package);
+    }
 }
