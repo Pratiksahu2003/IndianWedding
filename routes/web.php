@@ -44,6 +44,7 @@ use App\Livewire\Studio\Projects\Index as ProjectsIndex;
 use App\Livewire\Studio\Projects\Show as ProjectShow;
 use App\Livewire\Studio\Reports\Index as ReportsIndex;
 use App\Livewire\Studio\Settings\EmailSmtp;
+use App\Livewire\Studio\Settings\GoogleDrive as GoogleDriveSettings;
 use App\Livewire\Studio\Settings\Index as SettingsIndex;
 use App\Livewire\Studio\Settings\PaymentGateway as PaymentGatewaySettings;
 use App\Livewire\Studio\Tasks\Create as TasksCreate;
@@ -132,6 +133,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/settings', SettingsIndex::class)->name('settings.index');
         Route::get('/settings/payments', PaymentGatewaySettings::class)->name('settings.payments');
         Route::get('/settings/email', EmailSmtp::class)->name('settings.email');
+        Route::get('/settings/google-drive', GoogleDriveSettings::class)->name('settings.google-drive');
         Route::get('/website', WebsiteEditor::class)->name('website');
     });
 

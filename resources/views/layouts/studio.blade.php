@@ -45,6 +45,7 @@
             ['app.settings.index', 'Studio profile', 'settings', 'app.settings.index'],
             ['app.settings.payments', 'Payment gateway', 'payments', 'app.settings.payments', 'settings.manage'],
             ['app.settings.email', 'Email / SMTP', 'mail', 'app.settings.email', 'settings.manage'],
+            ['app.settings.google-drive', 'Google Drive', 'drive', 'app.settings.google-drive', 'settings.manage'],
         ],
     ];
 @endphp

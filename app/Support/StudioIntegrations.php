@@ -70,6 +70,7 @@ class StudioIntegrations
             'services.google_drive.client_id' => $drive['client_id'] ?? config('services.google_drive.client_id'),
             'services.google_drive.client_secret' => $drive['client_secret'] ?? config('services.google_drive.client_secret'),
             'services.google_drive.refresh_token' => $drive['refresh_token'] ?? config('services.google_drive.refresh_token'),
+            'services.google_drive.folder_id' => $drive['folder_id'] ?? config('services.google_drive.folder_id'),
         ]);
 
         $storage = self::bag('storage', $org);
@@ -185,6 +186,7 @@ class StudioIntegrations
             'services.google_drive.client_id' => config('services.google_drive.client_id'),
             'services.google_drive.client_secret' => config('services.google_drive.client_secret'),
             'services.google_drive.refresh_token' => config('services.google_drive.refresh_token'),
+            'services.google_drive.folder_id' => config('services.google_drive.folder_id'),
             'services.gcs.project' => config('services.gcs.project'),
             'services.gcs.bucket' => config('services.gcs.bucket'),
             'services.gcs.key_file' => config('services.gcs.key_file'),
