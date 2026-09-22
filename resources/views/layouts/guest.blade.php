@@ -78,6 +78,7 @@
                 <h1 class="text-3xl font-extrabold tracking-tight text-[#0f2744]">@yield('heading', 'Welcome back')</h1>
                 <p class="mt-2 text-sm text-slate-500">@yield('subheading', 'Sign in to your studio dashboard or client gallery.')</p>
             </header>
+            <x-swal-flash />
             {{ $slot ?? '' }}
             @yield('content')
         </div>

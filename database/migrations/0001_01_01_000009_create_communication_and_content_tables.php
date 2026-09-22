@@ -69,17 +69,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('messages', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('organization_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('project_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('recipient_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->text('body');
-            $table->timestamp('read_at')->nullable();
-            $table->timestamps();
-        });
-
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('organization_id')->nullable()->constrained()->nullOnDelete();
@@ -163,7 +152,6 @@ return new class extends Migration
         Schema::dropIfExists('support_tickets');
         Schema::dropIfExists('audit_logs');
         Schema::dropIfExists('activity_logs');
-        Schema::dropIfExists('messages');
         Schema::dropIfExists('voice_notes');
         Schema::dropIfExists('email_logs');
         Schema::dropIfExists('whatsapp_messages');

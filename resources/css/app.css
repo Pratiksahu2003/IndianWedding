@@ -109,6 +109,17 @@
     .cms-rich a {
         @apply font-medium text-[#9b7b4b] underline underline-offset-2;
     }
+    .cms-rich a {
+        @apply font-medium text-[#9b7b4b] underline underline-offset-2;
+    }
+    .home-hero-progress {
+        transform-origin: left center;
+        animation: home-hero-progress-fill var(--home-hero-duration, 6000ms) linear forwards;
+    }
+    @keyframes home-hero-progress-fill {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+    }
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {
             animation-duration: 0.01ms !important;

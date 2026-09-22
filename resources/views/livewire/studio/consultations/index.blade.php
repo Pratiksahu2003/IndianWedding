@@ -1,9 +1,6 @@
 <div class="space-y-6">
-    @if (session('status'))
-        <div class="rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white">{{ session('status') }}</div>
-    @endif
-
-    <div class="grid gap-8 lg:grid-cols-2">
+    <x-swal-flash />
+<div class="grid gap-8 lg:grid-cols-2">
         <div>
             <h1 class="font-[Cormorant_Garamond] text-4xl">Consultations</h1>
             <ul class="mt-6 space-y-3">

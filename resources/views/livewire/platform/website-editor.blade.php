@@ -9,11 +9,8 @@
         </a>
     </div>
 
-    @if (session('status'))
-        <p class="mb-6 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200">{{ session('status') }}</p>
-    @endif
-
-    <div class="lg:grid lg:grid-cols-12 lg:gap-8">
+    <x-swal-flash />
+<div class="lg:grid lg:grid-cols-12 lg:gap-8">
         <aside class="mb-8 lg:col-span-3 lg:mb-0">
             <nav class="sticky top-24 space-y-1 rounded-[28px] bg-white p-3 shadow-sm ring-1 ring-black/5" aria-label="Website CMS menu">
                 @foreach ($cmsMenu as $item)

@@ -1,4 +1,5 @@
 <div>
+    <x-swal-flash />
 <h1 class="font-[Cormorant_Garamond] text-4xl">Reports</h1>
 <div class="mt-8 grid gap-4 md:grid-cols-4">
 <div class="rounded-3xl bg-white p-5">Leads<br><strong>{{ $leadTotal }}</strong></div>

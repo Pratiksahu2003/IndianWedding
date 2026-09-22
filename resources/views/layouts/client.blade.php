@@ -29,7 +29,10 @@
             <form method="POST" action="{{ route('logout') }}">@csrf<button>Sign out</button></form>
         </nav>
     </header>
-    <main class="px-6 pb-16">{{ $slot }}</main>
+    <main class="px-6 pb-16">
+        <x-swal-flash />
+        {{ $slot }}
+    </main>
     @livewireScripts
 </body>
 </html>

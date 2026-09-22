@@ -11,7 +11,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('layouts.studio')]
-#[Title('Packages')]
+#[Title('Services')]
 class Index extends Component
 {
     public bool $showForm = true;

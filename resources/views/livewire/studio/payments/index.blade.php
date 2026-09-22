@@ -6,11 +6,8 @@
         @endif
     </div>
 
-    @if (session('status'))
-        <div class="rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white">{{ session('status') }}</div>
-    @endif
-
-    @if ($showForm && $canCreate)
+    <x-swal-flash />
+@if ($showForm && $canCreate)
     <form wire:submit="save" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">
         <h2 class="font-[Cormorant_Garamond] text-2xl">Record payment</h2>
         <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

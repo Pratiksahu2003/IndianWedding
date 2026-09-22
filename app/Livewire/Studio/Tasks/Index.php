@@ -17,11 +17,14 @@ use Livewire\Component;
 #[Title('Tasks')]
 class Index extends Component
 {
-    public bool $showForm = false;
+    /** @var null|'create'|'edit' */
+    public ?string $formMode = null;
 
     public ?int $editingId = null;
 
     public string $title = '';
+
+    public string $description = '';
 
     public ?int $project_id = null;
 
@@ -29,63 +32,55 @@ class Index extends Component
 
     public string $priority = 'medium';
 
-    public function create(): void
+    public ?string $deadline = null;
+
+    public function openCreate(): void
     {
         $this->authorize('create', ProjectTask::class);
-        $this->resetForm();
-        $this->showForm = true;
+        $this->resetFormFields();
+        $this->formMode = 'create';
+        $this->editingId = null;
     }
 
-    public function edit(int $id): void
+    public function openEdit(int $id): void
     {
         $task = ProjectTask::query()->findOrFail($id);
         $this->authorize('update', $task);
 
+        $this->formMode = 'edit';
         $this->editingId = $task->id;
         $this->title = $task->title;
+        $this->description = $task->description ?? '';
         $this->project_id = $task->project_id;
         $this->assigned_to = $task->assigned_to;
         $this->priority = $task->priority->value;
-        $this->showForm = true;
+        $this->deadline = $task->deadline?->format('Y-m-d\TH:i');
     }
 
-    public function save(): void
+    public function store(): void
     {
-        $data = $this->validate([
-            'title' => ['required', 'string', 'max:180'],
-            'project_id' => [
-                'required',
-                'integer',
-                Rule::exists('projects', 'id')->where(fn ($q) => $q->where('organization_id', Tenant::requireId())),
-            ],
-            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
-            'priority' => ['required', Rule::enum(TaskPriority::class)],
+        $this->authorize('create', ProjectTask::class);
+        $data = $this->validatedPayload();
+
+        ProjectTask::query()->create([
+            ...$data,
+            'organization_id' => Tenant::requireId(),
+            'status' => TaskStatus::Todo,
         ]);
 
-        if ($this->editingId) {
-            $task = ProjectTask::query()->findOrFail($this->editingId);
-            $this->authorize('update', $task);
-            $task->update([
-                'title' => $data['title'],
-                'project_id' => $data['project_id'],
-                'assigned_to' => $data['assigned_to'],
-                'priority' => TaskPriority::from($data['priority']),
-            ]);
-            session()->flash('status', 'Task updated.');
-        } else {
-            $this->authorize('create', ProjectTask::class);
-            ProjectTask::query()->create([
-                'organization_id' => Tenant::requireId(),
-                'project_id' => $data['project_id'],
-                'title' => $data['title'],
-                'assigned_to' => $data['assigned_to'],
-                'priority' => TaskPriority::from($data['priority']),
-                'status' => TaskStatus::Todo,
-            ]);
-            session()->flash('status', 'Task created.');
-        }
+        session()->flash('status', 'Task created.');
+        $this->cancel();
+    }
 
-        $this->resetForm();
+    public function update(): void
+    {
+        abort_unless($this->editingId, 404);
+        $task = ProjectTask::query()->findOrFail($this->editingId);
+        $this->authorize('update', $task);
+
+        $task->update($this->validatedPayload());
+        session()->flash('status', 'Task updated.');
+        $this->cancel();
     }
 
     public function move(int $id, string $status): void
@@ -108,13 +103,44 @@ class Index extends Component
 
     public function cancel(): void
     {
-        $this->resetForm();
+        $this->resetFormFields();
+        $this->formMode = null;
+        $this->editingId = null;
     }
 
-    protected function resetForm(): void
+    /**
+     * @return array<string, mixed>
+     */
+    protected function validatedPayload(): array
     {
-        $this->reset('showForm', 'editingId', 'title', 'project_id', 'assigned_to');
+        $data = $this->validate([
+            'title' => ['required', 'string', 'max:180'],
+            'description' => ['nullable', 'string', 'max:5000'],
+            'project_id' => [
+                'required',
+                'integer',
+                Rule::exists('projects', 'id')->where(fn ($q) => $q->where('organization_id', Tenant::requireId())),
+            ],
+            'assigned_to' => ['nullable', 'integer', 'exists:users,id'],
+            'priority' => ['required', Rule::enum(TaskPriority::class)],
+            'deadline' => ['nullable', 'date'],
+        ]);
+
+        return [
+            'title' => $data['title'],
+            'description' => $data['description'] ?: null,
+            'project_id' => $data['project_id'],
+            'assigned_to' => $data['assigned_to'],
+            'priority' => TaskPriority::from($data['priority']),
+            'deadline' => $data['deadline'] ?: null,
+        ];
+    }
+
+    protected function resetFormFields(): void
+    {
+        $this->reset('title', 'description', 'project_id', 'assigned_to', 'deadline');
         $this->priority = TaskPriority::Medium->value;
+        $this->resetErrorBag();
     }
 
     public function render()

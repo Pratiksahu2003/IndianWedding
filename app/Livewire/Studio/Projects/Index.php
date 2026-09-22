@@ -26,15 +26,22 @@ class Index extends Component
     #[Url]
     public string $status = '';
 
-    public bool $showForm = false;
+    /** @var null|'create'|'edit' */
+    public ?string $formMode = null;
 
     public ?int $editingId = null;
 
     public string $title = '';
 
+    public string $description = '';
+
     public ?int $customer_id = null;
 
     public ?string $wedding_date = null;
+
+    public string $venue = '';
+
+    public string $city = '';
 
     public string $statusForm = 'booking_confirmed';
 
@@ -48,63 +55,55 @@ class Index extends Component
         $this->resetPage();
     }
 
-    public function create(): void
+    public function openCreate(): void
     {
         $this->authorize('create', Project::class);
-        $this->resetForm();
-        $this->showForm = true;
+        $this->resetFormFields();
+        $this->formMode = 'create';
+        $this->editingId = null;
     }
 
-    public function edit(int $id): void
+    public function openEdit(int $id): void
     {
         $project = Project::query()->findOrFail($id);
         $this->authorize('update', $project);
 
+        $this->formMode = 'edit';
         $this->editingId = $project->id;
         $this->title = $project->title;
+        $this->description = $project->notes ?? '';
         $this->customer_id = $project->customer_id;
         $this->wedding_date = $project->wedding_date?->toDateString();
+        $this->venue = $project->venue ?? '';
+        $this->city = $project->city ?? '';
         $this->statusForm = $project->status->value;
-        $this->showForm = true;
     }
 
-    public function save(): void
+    public function store(): void
     {
-        $data = $this->validate([
-            'title' => ['required', 'string', 'max:180'],
-            'customer_id' => [
-                'required',
-                'integer',
-                Rule::exists('customers', 'id')->where(fn ($q) => $q->where('organization_id', Tenant::requireId())),
-            ],
-            'wedding_date' => ['nullable', 'date'],
-            'statusForm' => ['required', Rule::enum(ProjectStatus::class)],
+        $this->authorize('create', Project::class);
+        $data = $this->validatedPayload();
+
+        Project::query()->create([
+            ...$data,
+            'organization_id' => Tenant::requireId(),
+            'project_number' => Identifiers::project(Tenant::requireId()),
+            'booked_at' => now(),
         ]);
 
-        $payload = [
-            'title' => $data['title'],
-            'customer_id' => $data['customer_id'],
-            'wedding_date' => $data['wedding_date'],
-            'status' => ProjectStatus::from($data['statusForm']),
-        ];
+        session()->flash('status', 'Project created.');
+        $this->cancel();
+    }
 
-        if ($this->editingId) {
-            $project = Project::query()->findOrFail($this->editingId);
-            $this->authorize('update', $project);
-            $project->update($payload);
-            session()->flash('status', 'Project updated.');
-        } else {
-            $this->authorize('create', Project::class);
-            Project::query()->create([
-                ...$payload,
-                'organization_id' => Tenant::requireId(),
-                'project_number' => Identifiers::project(Tenant::requireId()),
-                'booked_at' => now(),
-            ]);
-            session()->flash('status', 'Project created.');
-        }
+    public function update(): void
+    {
+        abort_unless($this->editingId, 404);
+        $project = Project::query()->findOrFail($this->editingId);
+        $this->authorize('update', $project);
 
-        $this->resetForm();
+        $project->update($this->validatedPayload());
+        session()->flash('status', 'Project updated.');
+        $this->cancel();
     }
 
     public function delete(int $id): void
@@ -117,13 +116,46 @@ class Index extends Component
 
     public function cancel(): void
     {
-        $this->resetForm();
+        $this->resetFormFields();
+        $this->formMode = null;
+        $this->editingId = null;
     }
 
-    protected function resetForm(): void
+    /**
+     * @return array<string, mixed>
+     */
+    protected function validatedPayload(): array
     {
-        $this->reset('showForm', 'editingId', 'title', 'customer_id', 'wedding_date');
+        $data = $this->validate([
+            'title' => ['required', 'string', 'max:180'],
+            'description' => ['nullable', 'string', 'max:5000'],
+            'customer_id' => [
+                'required',
+                'integer',
+                Rule::exists('customers', 'id')->where(fn ($q) => $q->where('organization_id', Tenant::requireId())),
+            ],
+            'wedding_date' => ['nullable', 'date'],
+            'venue' => ['nullable', 'string', 'max:180'],
+            'city' => ['nullable', 'string', 'max:120'],
+            'statusForm' => ['required', Rule::enum(ProjectStatus::class)],
+        ]);
+
+        return [
+            'title' => $data['title'],
+            'notes' => $data['description'] ?: null,
+            'customer_id' => $data['customer_id'],
+            'wedding_date' => $data['wedding_date'],
+            'venue' => $data['venue'] ?: null,
+            'city' => $data['city'] ?: null,
+            'status' => ProjectStatus::from($data['statusForm']),
+        ];
+    }
+
+    protected function resetFormFields(): void
+    {
+        $this->reset('title', 'description', 'customer_id', 'wedding_date', 'venue', 'city');
         $this->statusForm = ProjectStatus::BookingConfirmed->value;
+        $this->resetErrorBag();
     }
 
     public function render()

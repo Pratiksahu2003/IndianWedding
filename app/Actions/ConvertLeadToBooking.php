@@ -97,9 +97,15 @@ class ConvertLeadToBooking
                 'organization_id' => $organization->id,
                 'invoice_id' => $invoice->id,
                 'description' => $package?->name ?? 'Wedding photography package',
+                'hsn_sac' => \App\Support\Gst::DEFAULT_SAC,
+                'gst_rate' => \App\Support\Gst::DEFAULT_RATE,
                 'quantity' => 1,
                 'unit_amount' => $total,
                 'amount' => $total,
+                'taxable_amount' => $total,
+                'cgst_amount' => 0,
+                'sgst_amount' => 0,
+                'igst_amount' => 0,
             ]);
 
             foreach ($organization->defaultMilestones() as $index => $milestone) {

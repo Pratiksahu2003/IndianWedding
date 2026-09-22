@@ -1,4 +1,5 @@
 <div class="max-w-2xl">
+    <x-swal-flash />
     <h1 class="font-[Cormorant_Garamond] text-4xl">New lead</h1>
     <form wire:submit="save" class="mt-8 grid gap-4 rounded-3xl bg-white p-8">
         <input wire:model="name" placeholder="Name" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">

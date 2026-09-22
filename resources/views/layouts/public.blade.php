@@ -90,6 +90,7 @@
         </div>
     </header>
     <main id="content" class="pt-[68px]">
+        <x-swal-flash />
         {{ $slot ?? '' }}
         @yield('content')
     </main>
@@ -140,6 +141,7 @@
             </div>
         </div>
     </footer>
+    @include('public.partials.lead-popup')
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
     <script>

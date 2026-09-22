@@ -4,6 +4,7 @@
     $name = auth()->user()->name;
 @endphp
 <div class="space-y-8">
+    <x-swal-flash />
     <div class="flex flex-wrap items-end justify-between gap-4">
         <div>
             <p class="text-sm text-[#16120f]/50">{{ now('Asia/Kolkata')->toFormattedDateString() }}</p>

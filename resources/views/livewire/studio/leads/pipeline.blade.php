@@ -1,4 +1,5 @@
 <div>
+    <x-swal-flash />
     <h1 class="font-[Cormorant_Garamond] text-4xl">Pipeline</h1>
     <div class="mt-6 flex gap-4 overflow-x-auto pb-6">
         @foreach ($columns as $key => $column)

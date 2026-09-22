@@ -13,7 +13,6 @@
         'invoices' => '<path d="M7 3h8l4 4v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M15 3v5h5M9 13h6M9 17h4"/>',
         'gallery' => '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="1.5"/><path d="m21 16-5-4-4 3-2.5-2L3 17"/>',
         'files' => '<path d="M9 3h6l4 4v13a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M15 3v5h5"/>',
-        'messages' => '<path d="M4 5h16v10H7l-3 3z"/>',
         'reports' => '<path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/>',
         'packages' => '<path d="M12 3 3 8v8l9 5 9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
         'website' => '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',

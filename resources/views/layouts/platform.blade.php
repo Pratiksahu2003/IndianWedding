@@ -19,6 +19,7 @@
                 <a href="/" target="_blank">View site</a>
             </nav>
         </div>
+        <x-swal-flash />
         {{ $slot }}
     </div>
     @livewireScripts

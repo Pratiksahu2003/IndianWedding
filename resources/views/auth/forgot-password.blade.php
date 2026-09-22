@@ -5,10 +5,7 @@
 @section('content')
 <form method="POST" action="{{ route('password.email') }}" class="space-y-4">
     @csrf
-    @if (session('status'))
-        <p class="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</p>
-    @endif
-    <div>
+<div>
         <label for="auth-email" class="text-sm font-medium text-[#0f2744]">Email</label>
         <div class="relative mt-1.5">
             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">

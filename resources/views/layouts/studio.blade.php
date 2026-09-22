@@ -40,7 +40,7 @@
             ['app.files.index', 'Files', 'files', 'app.files.*'],
         ],
         'Studio' => [
-            ['app.packages.index', 'Packages', 'packages', 'app.packages.*'],
+            ['app.packages.index', 'Services', 'packages', 'app.packages.*'],
             ['app.website', 'Website', 'website', 'app.website'],
             ['app.settings.index', 'Studio profile', 'settings', 'app.settings.index'],
             ['app.settings.payments', 'Payment gateway', 'payments', 'app.settings.payments', 'settings.manage'],
@@ -135,9 +135,7 @@
         </header>
 
         <main class="flex-1 px-4 py-6 md:px-8 md:py-8">
-            @if (session('status'))
-                <div class="mb-5 rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white">{{ session('status') }}</div>
-            @endif
+            <x-swal-flash />
             {{ $slot }}
         </main>
     </div>

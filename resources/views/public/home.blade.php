@@ -1,18 +1,7 @@
 @extends('layouts.public')
 
 @section('content')
-<section class="relative overflow-hidden">
-    @php $heroImage = site('home.hero_image') ?: \App\Support\UnikStudioAssets::url('hero-slide.png'); @endphp
-    <img src="{{ $heroImage }}" alt="{{ site('brand.name') }}" class="h-[min(88vh,52rem)] w-full max-w-full object-cover" />
-    <div class="absolute inset-0 bg-gradient-to-t from-[#16120f] via-[#16120f]/30 to-transparent"></div>
-    <div class="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-4 pb-12 text-white sm:px-6 sm:pb-16 md:pb-20" data-reveal>
-        <p class="text-xs uppercase tracking-[0.25em] text-[#c4a574] sm:text-sm sm:tracking-[0.3em]">{{ site('home.kicker') }}</p>
-        <h1 class="mt-4 max-w-4xl font-[Cormorant_Garamond] text-4xl italic leading-tight text-balance sm:text-5xl md:text-6xl xl:text-7xl">{{ site('home.headline') }}</h1>
-        <div class="mt-8">
-            <a href="/book-consultation" class="rounded-full bg-white px-6 py-3 text-[#16120f]">{{ site('home.cta') }}</a>
-        </div>
-    </div>
-</section>
+@include('public.partials.home-hero-slider')
 
 <section class="mx-auto max-w-6xl px-6 py-24" data-scroll>
     <p class="text-sm uppercase tracking-[0.25em] text-[#9b7b4b]">{{ site('home.story_kicker') }}</p>

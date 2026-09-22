@@ -8,7 +8,7 @@
             @if ($package->is_public)
                 <a href="{{ $package->publicUrl() }}" target="_blank" class="rounded-full bg-[#16120f] px-4 py-2 text-white">View public page</a>
             @endif
-            <a href="{{ route('app.packages.index') }}" class="rounded-full bg-[#f6f1ea] px-4 py-2">All packages</a>
+            <a href="{{ route('app.packages.index') }}" class="rounded-full bg-[#f6f1ea] px-4 py-2">All services</a>
         </div>
     </div>
     <div class="grid gap-6 lg:grid-cols-2">

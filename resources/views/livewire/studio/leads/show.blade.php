@@ -1,4 +1,5 @@
 <div class="grid gap-6 lg:grid-cols-3">
+    <x-swal-flash />
     <div class="lg:col-span-2 rounded-3xl bg-white p-8">
         <p class="text-xs uppercase tracking-[0.2em] opacity-50">{{ $lead->lead_number }}</p>
         <h1 class="font-[Cormorant_Garamond] text-4xl">{{ $lead->name }}</h1>

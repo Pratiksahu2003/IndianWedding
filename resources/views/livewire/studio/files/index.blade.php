@@ -1,4 +1,5 @@
 <div>
+    <x-swal-flash />
 <h1 class="font-[Cormorant_Garamond] text-4xl">Files</h1>
 <input wire:model.live="search" class="mt-4 rounded-2xl bg-white px-4 py-2 text-sm" placeholder="Search files">
 <ul class="mt-6 divide-y rounded-3xl bg-white">

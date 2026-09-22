@@ -38,13 +38,8 @@
     </div>
 
     {{-- Flash success --}}
-    @if (session('status'))
-        <div class="rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white" role="alert">
-            {{ session('status') }}
-        </div>
-    @endif
-
-    {{-- Add Schedule Form --}}
+    <x-swal-flash />
+{{-- Add Schedule Form --}}
     @if ($canAdd)
     <div x-show="showForm" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2">
         <div class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5">

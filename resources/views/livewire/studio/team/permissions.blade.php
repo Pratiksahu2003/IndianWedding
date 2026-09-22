@@ -8,11 +8,8 @@
         <a href="{{ route('app.team.index') }}" class="rounded-xl bg-white px-4 py-2 text-sm shadow-sm ring-1 ring-black/5 hover:bg-[#f6f1ea]">Back to team</a>
     </div>
 
-    @if (session('status'))
-        <div class="rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white">{{ session('status') }}</div>
-    @endif
-
-    <div class="grid gap-4 lg:grid-cols-3">
+    <x-swal-flash />
+<div class="grid gap-4 lg:grid-cols-3">
         <div class="rounded-3xl bg-white p-4 shadow-sm ring-1 ring-black/5">
             <p class="px-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#16120f]/45">Team members</p>
             <div class="mt-3 space-y-1">

@@ -1,4 +1,5 @@
 <div class="space-y-6">
+    <x-swal-flash />
     <div class="rounded-3xl bg-white p-8">
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>

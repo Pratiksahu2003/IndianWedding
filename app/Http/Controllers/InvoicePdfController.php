@@ -12,7 +12,9 @@ class InvoicePdfController extends Controller
     {
         $this->authorize('view', $invoice);
         $invoice->load(['items', 'customer', 'organization', 'project']);
-        $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice]);
+
+        $pdf = Pdf::loadView('pdf.invoice', ['invoice' => $invoice])
+            ->setPaper('a4');
 
         return $pdf->download($invoice->invoice_number.'.pdf');
     }

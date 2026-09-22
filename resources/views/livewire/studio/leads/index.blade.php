@@ -1,4 +1,5 @@
 <div>
+    <x-swal-flash />
     <div class="flex flex-wrap items-center justify-between gap-3">
         <h1 class="font-[Cormorant_Garamond] text-4xl">Leads</h1>
         <div class="flex gap-2">

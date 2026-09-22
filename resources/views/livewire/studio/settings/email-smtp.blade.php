@@ -1,11 +1,8 @@
 <div class="max-w-3xl">
     @include('livewire.studio.settings._nav')
 
-    @if (session('status'))
-        <p class="mb-6 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200">{{ session('status') }}</p>
-    @endif
-
-    <form wire:submit="save" class="space-y-6 rounded-3xl bg-white p-8 shadow-sm ring-1 ring-black/4">
+    <x-swal-flash />
+<form wire:submit="save" class="space-y-6 rounded-3xl bg-white p-8 shadow-sm ring-1 ring-black/4">
         <div>
             <h1 class="font-[Cormorant_Garamond] text-4xl">Email / SMTP</h1>
             <p class="mt-2 text-sm text-[#16120f]/60">Outgoing mail for lead confirmations, booking emails, and payment receipts. Use <strong>Log</strong> on demo servers; switch to SMTP for production.</p>

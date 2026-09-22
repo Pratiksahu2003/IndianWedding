@@ -28,6 +28,7 @@ class Invoice extends Model
             'tax' => 'integer',
             'total' => 'integer',
             'paid' => 'integer',
+            'is_interstate' => 'boolean',
         ];
     }
 
