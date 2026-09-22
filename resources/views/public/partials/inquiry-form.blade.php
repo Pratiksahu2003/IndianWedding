@@ -6,8 +6,8 @@
 @else
 <form method="POST" action="{{ route('inquiry.store') }}" class="rounded-[28px] bg-white p-8 shadow-sm">
     @csrf
-    <h2 class="font-[Cormorant_Garamond] text-4xl">Begin with an enquiry</h2>
-    <p class="mt-2 text-sm text-[#16120f]/60">This form creates a real studio lead — not a mailbox copy.</p>
+    <h2 class="font-[Cormorant_Garamond] text-4xl">{{ site('reservation.heading', 'Begin with an enquiry') }}</h2>
+    <p class="mt-2 text-sm text-[#16120f]/60">{{ site('reservation.body', 'This form creates a real studio lead.') }}</p>
     <input type="text" name="website" class="hidden" tabindex="-1" autocomplete="off">
     <div class="mt-8 grid gap-4 md:grid-cols-2">
         <label class="text-sm">Name<input required name="name" value="{{ old('name') }}" class="mt-1 w-full rounded-2xl border border-[#16120f]/10 bg-[#f6f1ea] px-4 py-3"></label>

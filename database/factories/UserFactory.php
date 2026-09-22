@@ -37,9 +37,4 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
-
-    public function superAdmin(): static
-    {
-        return $this->state(fn () => ['is_super_admin' => true]);
-    }
 }

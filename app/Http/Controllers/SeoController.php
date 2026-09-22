@@ -13,7 +13,6 @@ class SeoController extends Controller
             'Allow: /',
             'Disallow: /app',
             'Disallow: /client',
-            'Disallow: /platform',
             'Disallow: /login',
             'Disallow: /api',
             'Sitemap: '.url('/sitemap.xml'),
@@ -25,7 +24,15 @@ class SeoController extends Controller
 
     public function sitemap(): Response
     {
-        $paths = ['/', '/about', '/services', '/packages', '/portfolio', '/gallery', '/testimonials', '/faq', '/contact', '/book-consultation'];
+        $org = \App\Models\Organization::query()->where('is_active', true)->first();
+        $paths = ['/', '/about', '/our-team', '/services', '/packages', '/portfolio', '/gallery', '/testimonials', '/faq', '/contact', '/book-consultation'];
+        if ($org) {
+            $paths = array_merge(
+                $paths,
+                \App\Models\Package::withoutTenant()->where('organization_id', $org->id)->where('is_public', true)->where('is_active', true)->pluck('slug')->map(fn ($slug) => '/services/'.$slug)->all(),
+                \App\Models\PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->whereNotNull('slug')->pluck('slug')->map(fn ($slug) => '/projects/'.$slug)->all(),
+            );
+        }
         $urls = collect($paths)->map(function ($path) {
             return '<url><loc>'.e(url($path)).'</loc><changefreq>weekly</changefreq></url>';
         })->implode('');

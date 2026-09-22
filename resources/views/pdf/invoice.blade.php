@@ -1,4 +1,5 @@
 <html><body style="font-family: DejaVu Sans, sans-serif; color:#16120f;">
+<p><img src="{{ public_path('Logo/logo-web.png') }}" alt="Unik Studio" style="height:42px;"></p>
 <h1>Invoice {{ $invoice->invoice_number }}</h1>
 <p>{{ $invoice->organization?->name }}<br>{{ $invoice->customer?->name }}</p>
 <table width="100%" cellpadding="6">

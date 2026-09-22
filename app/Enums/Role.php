@@ -4,7 +4,6 @@ namespace App\Enums;
 
 enum Role: string
 {
-    case SuperAdmin = 'super_admin';
     case StudioAdmin = 'studio_admin';
     case Manager = 'manager';
     case Photographer = 'photographer';
@@ -15,8 +14,7 @@ enum Role: string
     public function label(): string
     {
         return match ($this) {
-            self::SuperAdmin => 'Super Admin',
-            self::StudioAdmin => 'Studio Admin',
+            self::StudioAdmin => 'Admin',
             self::Manager => 'Manager',
             self::Photographer => 'Photographer',
             self::Videographer => 'Videographer',
@@ -28,7 +26,6 @@ enum Role: string
     public function permissions(): array
     {
         return match ($this) {
-            self::SuperAdmin => ['*'],
             self::StudioAdmin => [
                 'billing.manage', 'users.manage', 'settings.manage', 'leads.manage',
                 'projects.manage', 'payments.manage', 'files.manage', 'reports.view',
@@ -59,23 +56,16 @@ enum Role: string
     {
         $perms = $this->permissions();
 
-        return in_array('*', $perms, true) || in_array($permission, $perms, true);
+        return in_array($permission, $perms, true);
     }
 
     public function isStaff(): bool
     {
-        return in_array($this, [
-            self::StudioAdmin, self::Manager, self::Photographer, self::Videographer, self::Editor,
-        ], true);
+        return $this !== self::Client;
     }
 
     public function dashboardRoute(): string
     {
-        return match ($this) {
-            self::SuperAdmin => 'platform.dashboard',
-            self::Client => 'client.dashboard',
-            default => 'app.dashboard',
-        };
+        return $this === self::Client ? 'client.dashboard' : 'app.dashboard';
     }
-
 }

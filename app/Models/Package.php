@@ -46,4 +46,14 @@ class Package extends Model
     {
         return $this->hasMany(PackageAddon::class);
     }
+
+    public function projects(): HasMany
+    {
+        return $this->hasMany(Project::class);
+    }
+
+    public function publicUrl(): string
+    {
+        return url('/services/'.$this->slug);
+    }
 }

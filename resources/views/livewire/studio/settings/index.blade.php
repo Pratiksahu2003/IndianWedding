@@ -1,5 +1,10 @@
-<form wire:submit="save" class="max-w-2xl space-y-4 rounded-3xl bg-white p-8">
-<h1 class="font-[Cormorant_Garamond] text-4xl">Settings</h1>
+<div class="max-w-2xl">
+@include('livewire.studio.settings._nav')
+@if (session('status'))
+    <p class="mb-6 rounded-2xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200">{{ session('status') }}</p>
+@endif
+<form wire:submit="save" class="space-y-4 rounded-3xl bg-white p-8 shadow-sm ring-1 ring-black/4">
+<h1 class="font-[Cormorant_Garamond] text-4xl">Studio profile</h1>
 <input wire:model="name" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
 <input wire:model="email" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
 <input wire:model="phone" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
@@ -10,3 +15,4 @@
 <textarea wire:model="milestones_json" rows="8" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3 font-mono text-xs"></textarea>
 <button class="rounded-full bg-[#16120f] px-5 py-3 text-white">Save</button>
 </form>
+</div>

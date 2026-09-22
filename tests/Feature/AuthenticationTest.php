@@ -14,7 +14,11 @@ class AuthenticationTest extends TestCase
 
     public function test_login_page_is_visible(): void
     {
-        $this->get('/login')->assertOk();
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('Welcome back')
+            ->assertSee('Wedding, pre-wedding')
+            ->assertSee('/Logo/', false);
     }
 
     public function test_user_can_login(): void

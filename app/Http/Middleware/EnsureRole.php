@@ -14,10 +14,6 @@ class EnsureRole
         $user = $request->user();
         abort_unless($user, 401);
 
-        if ($user->is_super_admin) {
-            return $next($request);
-        }
-
         $role = $user->roleIn(Tenant::current());
         abort_unless($role && in_array($role->value, $roles, true), 403);
 

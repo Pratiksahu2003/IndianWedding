@@ -14,6 +14,11 @@ class PackagePolicy
             || $user->canInOrganization('packages.view', Tenant::current());
     }
 
+    public function view(User $user, Package $package): bool
+    {
+        return $this->viewAny($user) && $package->organization_id === Tenant::id();
+    }
+
     public function create(User $user): bool
     {
         return $user->canInOrganization('packages.manage', Tenant::current());

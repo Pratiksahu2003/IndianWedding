@@ -13,6 +13,7 @@ class OrganizationSetting extends Model
     {
         return [
             'payment_milestones' => 'array',
+            'payments' => 'array',
             'whatsapp' => 'array',
             'email' => 'array',
             'storage' => 'array',

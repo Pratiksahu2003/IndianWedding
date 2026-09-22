@@ -3,7 +3,7 @@
 <h1 class="font-[Cormorant_Garamond] text-4xl">Packages</h1>
 <div class="mt-6 space-y-4">
 @forelse ($packages as $package)
-<article class="rounded-3xl bg-white p-6"><h2 class="text-xl">{{ $package->name }}</h2><p class="text-sm opacity-70">{{ \App\Support\Money::format($package->price) }}</p></article>
+<article class="rounded-3xl bg-white p-6"><h2 class="text-xl"><a href="{{ route('app.packages.show', $package) }}">{{ $package->name }}</a></h2><p class="text-sm opacity-70">{{ \App\Support\Money::format($package->price) }}</p>@if($package->is_public)<a class="mt-2 inline-block text-xs text-[#9b7b4b]" href="{{ $package->publicUrl() }}">Public page</a>@endif</article>
 @empty
 <p>No packages yet.</p>
 @endforelse

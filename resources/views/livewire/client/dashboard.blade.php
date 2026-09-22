@@ -3,7 +3,8 @@
 <h1 class="mt-3 font-[Cormorant_Garamond] text-5xl">{{ $customer->name }}</h1>
 @if ($project)
     @php $days = $project->wedding_date ? now()->startOfDay()->diffInDays($project->wedding_date, false) : null; @endphp
-    <p class="mt-4 text-white/70">{{ $project->title }} · {{ optional($project->wedding_date)?->toFormattedDateString() }}</p>
+    @if ($project)
+    <p class="mt-4 text-white/70"><a href="{{ route('client.project', $project) }}" class="underline decoration-white/30">{{ $project->title }}</a> · {{ optional($project->wedding_date)?->toFormattedDateString() }}</p>
     @if (!is_null($days))
         <p class="mt-8 font-[Cormorant_Garamond] text-7xl text-[#c4a574]">{{ max(0, $days) }} <span class="text-3xl">days</span></p>
     @endif

@@ -13,7 +13,7 @@ use Livewire\Component;
 class Search extends Component
 {
     public string $q = '';
-    public bool $open = false;
+
 
     public function render()
     {

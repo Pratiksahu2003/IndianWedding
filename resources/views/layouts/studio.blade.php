@@ -4,58 +4,144 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex,nofollow">
-    <title>{{ $title ?? 'Studio' }} · Lumina</title>
-    <link href="https://fonts.bunny.net/css?family=cormorant-garamond:600|outfit:400,500,600" rel="stylesheet" />
+    <title>{{ $title ?? 'Studio' }} · Unik Studio</title>
+    @include('partials.brand-head')
+    <link href="https://fonts.bunny.net/css?family=cormorant-garamond:600,700|outfit:400,500,600" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="min-h-screen bg-[#efe7dc] font-[Outfit] text-[#16120f]">
+<body class="min-h-screen bg-[#f4eee6] font-[Outfit] text-[#16120f] antialiased" x-data="{ sidebar: false, userMenu: false }" @keydown.escape.window="sidebar=false; userMenu=false">
+@php
+    $user = auth()->user();
+    $role = $user?->roleIn(\App\Support\Tenant::current());
+    $initials = collect(explode(' ', (string) $user?->name))->map(fn ($p) => mb_substr($p, 0, 1))->take(2)->implode('');
+    $nav = [
+        'Overview' => [
+            ['app.dashboard', 'Dashboard', 'home', 'app.dashboard'],
+            ['app.reports.index', 'Reports', 'reports', 'app.reports.*'],
+            ['app.calendar', 'Calendar', 'calendar', 'app.calendar'],
+        ],
+        'Pipeline' => [
+            ['app.leads.index', 'Leads', 'leads', 'app.leads.index|app.leads.show|app.leads.create'],
+            ['app.leads.pipeline', 'Pipeline', 'pipeline', 'app.leads.pipeline'],
+            ['app.consultations.index', 'Consultations', 'consult', 'app.consultations.*'],
+        ],
+        'Production' => [
+            ['app.clients.index', 'Clients', 'clients', 'app.clients.*'],
+            ['app.projects.index', 'Projects', 'projects', 'app.projects.*'],
+            ['app.tasks.index', 'Tasks', 'tasks', 'app.tasks.*'],
+            ['app.team.index', 'Team', 'team', 'app.team.*'],
+        ],
+        'Finance' => [
+            ['app.payments.index', 'Payments', 'payments', 'app.payments.*'],
+            ['app.invoices.index', 'Invoices', 'invoices', 'app.invoices.*'],
+        ],
+        'Delivery' => [
+            ['app.galleries.index', 'Galleries', 'gallery', 'app.galleries.*'],
+            ['app.files.index', 'Files', 'files', 'app.files.*'],
+            ['app.messages.index', 'Messages', 'messages', 'app.messages.*'],
+        ],
+        'Studio' => [
+            ['app.packages.index', 'Packages', 'packages', 'app.packages.*'],
+            ['app.website', 'Website', 'website', 'app.website'],
+            ['app.settings.index', 'Studio profile', 'settings', 'app.settings.index'],
+            ['app.settings.payments', 'Payment gateway', 'payments', 'app.settings.payments', 'settings.manage'],
+            ['app.settings.email', 'Email / SMTP', 'mail', 'app.settings.email', 'settings.manage'],
+        ],
+    ];
+@endphp
+
 <div class="flex min-h-screen">
-    <aside class="hidden w-64 shrink-0 border-r border-[#16120f]/10 bg-[#16120f] text-[#f6f1ea] md:flex md:flex-col">
-        <div class="px-6 py-6 font-[Cormorant_Garamond] text-2xl tracking-[0.2em]">LUMINA</div>
-        <nav class="flex-1 space-y-1 px-3 text-sm">
-            @php
-            $links = [
-                ['app.dashboard','Dashboard'],
-                ['app.leads.index','Leads'],
-                ['app.leads.pipeline','Pipeline'],
-                ['app.clients.index','Clients'],
-                ['app.consultations.index','Consultations'],
-                ['app.packages.index','Packages'],
-                ['app.projects.index','Projects'],
-                ['app.calendar','Calendar'],
-                ['app.team.index','Team'],
-                ['app.tasks.index','Tasks'],
-                ['app.payments.index','Payments'],
-                ['app.invoices.index','Invoices'],
-                ['app.galleries.index','Galleries'],
-                ['app.files.index','Files'],
-                ['app.messages.index','Messages'],
-                ['app.reports.index','Reports'],
-                ['app.settings.index','Settings'],
-            ];
-            @endphp
-            @foreach ($links as [$route,$label])
-                <a href="{{ route($route) }}" class="block rounded-lg px-3 py-2 hover:bg-white/10 {{ request()->routeIs($route) ? 'bg-white/10 text-[#c4a574]' : '' }}">{{ $label }}</a>
+    <div x-show="sidebar" x-cloak class="fixed inset-0 z-40 bg-[#16120f]/50 md:hidden" @click="sidebar=false"></div>
+
+    <aside
+        class="fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-white/5 bg-[#14110e] text-[#f6f1ea] transition-transform duration-200 md:static md:translate-x-0"
+        :class="sidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
+    >
+        <div class="flex items-center justify-between px-5 py-5">
+            <a href="{{ route('app.dashboard') }}" class="block min-w-0">
+                <x-brand-logo class="h-11 max-w-[180px]" />
+            </a>
+            <button type="button" class="rounded-lg p-2 text-white/70 md:hidden" @click="sidebar=false" aria-label="Close menu">
+                <x-studio.icon name="close" />
+            </button>
+        </div>
+
+        <nav class="studio-scroll flex-1 space-y-5 overflow-y-auto px-3 pb-6">
+            @foreach ($nav as $group => $links)
+                <div>
+                    <p class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">{{ $group }}</p>
+                    <div class="space-y-0.5">
+                        @foreach ($links as $link)
+                            @php
+                                [$route, $label, $icon, $match] = $link;
+                                $permission = $link[4] ?? null;
+                            @endphp
+                            @continue($permission && ! $user?->canInOrganization($permission, \App\Support\Tenant::current()))
+                            @php $active = collect(explode('|', $match))->contains(fn ($pattern) => request()->routeIs($pattern)); @endphp
+                            <a href="{{ route($route) }}" @click="sidebar=false" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition {{ $active ? 'bg-white/10 text-[#e2c48a] shadow-inner' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">
+                                <x-studio.icon :name="$icon" class="h-[18px] w-[18px]" />
+                                <span>{{ $label }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
             @endforeach
         </nav>
-        <form method="POST" action="{{ route('logout') }}" class="p-4 text-sm opacity-70">
-            @csrf
-            <div class="mb-2">{{ auth()->user()->name }}</div>
-            <button type="submit">Sign out</button>
-        </form>
+
+        <div class="border-t border-white/10 p-3">
+            <div class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#c4a574] text-sm font-semibold text-[#16120f]">{{ $initials }}</div>
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-medium">{{ $user?->name }}</p>
+                    <p class="truncate text-xs text-white/45">{{ $role?->label() ?? 'Staff' }}</p>
+                </div>
+            </div>
+            <form method="POST" action="{{ route('logout') }}" class="mt-2">
+                @csrf
+                <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/55 transition hover:bg-white/5 hover:text-white">
+                    <x-studio.icon name="logout" class="h-4 w-4" /> Sign out
+                </button>
+            </form>
+        </div>
     </aside>
-    <div class="min-w-0 flex-1">
-        <header class="sticky top-0 z-20 flex items-center justify-between border-b border-[#16120f]/10 bg-[#efe7dc]/80 px-4 py-3 backdrop-blur md:px-8">
-            <livewire:studio.search />
-            <a href="{{ route('client.dashboard') }}" class="hidden text-sm md:inline">Client view</a>
+
+    <div class="flex min-w-0 flex-1 flex-col">
+        <header class="sticky top-0 z-30 flex items-center gap-3 border-b border-[#16120f]/8 bg-[#f4eee6]/90 px-4 py-3 backdrop-blur-xl md:px-8">
+            <button type="button" class="rounded-xl bg-white p-2 shadow-sm md:hidden" @click="sidebar=true" aria-label="Open menu">
+                <x-studio.icon name="menu" />
+            </button>
+            <div class="min-w-0 flex-1">
+                <livewire:studio.search />
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('app.leads.create') }}" class="hidden items-center gap-1.5 rounded-xl bg-[#16120f] px-3 py-2 text-sm font-medium text-white shadow-sm sm:inline-flex">
+                    <x-studio.icon name="plus" class="h-4 w-4" /> New lead
+                </a>
+                <a href="/" target="_blank" class="hidden rounded-xl bg-white p-2 text-[#16120f]/70 shadow-sm hover:text-[#16120f] md:inline-flex" title="View website">
+                    <x-studio.icon name="website" />
+                </a>
+                <div class="relative">
+                    <button type="button" @click="userMenu=!userMenu" class="flex items-center gap-2 rounded-xl bg-white px-2 py-1.5 shadow-sm">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#16120f] text-xs font-semibold text-[#e2c48a]">{{ $initials }}</span>
+                        <span class="hidden pr-1 text-sm md:inline">{{ $user?->name }}</span>
+                    </button>
+                    <div x-show="userMenu" x-cloak @click.outside="userMenu=false" class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5">
+                        <a href="{{ route('app.settings.index') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Settings</a>
+                        <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website content</a>
+                        <a href="{{ route('client.dashboard') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Client view</a>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button class="w-full px-4 py-2.5 text-left hover:bg-[#f6f1ea]">Sign out</button></form>
+                    </div>
+                </div>
+            </div>
         </header>
-        <div class="px-4 py-6 md:px-8">
+
+        <main class="flex-1 px-4 py-6 md:px-8 md:py-8">
             @if (session('status'))
-                <div class="mb-4 rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white">{{ session('status') }}</div>
+                <div class="mb-5 rounded-2xl bg-[#16120f] px-4 py-3 text-sm text-white">{{ session('status') }}</div>
             @endif
             {{ $slot }}
-        </div>
+        </main>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>

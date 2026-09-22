@@ -16,6 +16,7 @@ class Tenant
     public static function set(?int $id): void
     {
         app()->instance('current.organization_id', $id);
+        StudioIntegrations::apply($id ? Organization::query()->find($id) : null);
     }
 
     public static function forget(): void

@@ -2,7 +2,6 @@
 
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\EnsureRole;
-use App\Http\Middleware\EnsureSuperAdmin;
 use App\Http\Middleware\SetCurrentOrganization;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => SetCurrentOrganization::class,
             'role' => EnsureRole::class,
             'permission' => EnsurePermission::class,
-            'superadmin' => EnsureSuperAdmin::class,
         ]);
         $middleware->redirectGuestsTo('/login');
         $middleware->redirectUsersTo('/app');

@@ -17,19 +17,6 @@ class SetCurrentOrganization
             return $next($request);
         }
 
-        if ($user->is_super_admin) {
-            $selected = $request->session()->get('current_organization_id');
-            if (! $selected) {
-                $selected = \App\Models\Organization::query()->value('id');
-                if ($selected) {
-                    $request->session()->put('current_organization_id', $selected);
-                }
-            }
-            Tenant::set($selected ? (int) $selected : null);
-
-            return $next($request);
-        }
-
         $orgId = $request->session()->get('current_organization_id');
         if (! $orgId) {
             $orgId = $user->memberships()->value('organization_id');

@@ -46,10 +46,6 @@ class User extends Authenticatable
 
     public function roleIn(?Organization $organization): ?Role
     {
-        if ($this->is_super_admin) {
-            return Role::SuperAdmin;
-        }
-
         if (! $organization) {
             return null;
         }
@@ -62,17 +58,16 @@ class User extends Authenticatable
             return null;
         }
 
-        return $membership->role instanceof Role
-            ? $membership->role
-            : Role::from($membership->role);
+        $value = $membership->role instanceof Role ? $membership->role->value : (string) $membership->role;
+        if ($value === 'super_admin') {
+            $value = Role::StudioAdmin->value;
+        }
+
+        return Role::tryFrom($value);
     }
 
     public function canInOrganization(string $permission, ?Organization $organization = null): bool
     {
-        if ($this->is_super_admin) {
-            return true;
-        }
-
         $role = $this->roleIn($organization);
 
         return $role?->can($permission) ?? false;

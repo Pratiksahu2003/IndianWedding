@@ -13,7 +13,7 @@ class Dashboard extends Component
 {
     public function render(DashboardService $dashboard)
     {
-        abort_unless(auth()->user()?->is_super_admin || auth()->user()?->roleIn(\App\Support\Tenant::current())?->isStaff(), 403);
+        abort_unless(auth()->user()?->roleIn(\App\Support\Tenant::current())?->isStaff(), 403);
 
         return view('livewire.studio.dashboard', [
             'stats' => $dashboard->studio(),

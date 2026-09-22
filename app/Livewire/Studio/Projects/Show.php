@@ -31,7 +31,7 @@ class Show extends Component
     public function mount(Project $project): void
     {
         $this->authorize('view', $project);
-        $this->project = $project->load(['customer', 'package', 'events', 'team.user', 'tasks.assignee', 'paymentMilestones', 'files', 'gallery', 'contract']);
+        $this->project = $project->load(['customer', 'package', 'events', 'team.user', 'tasks.assignee', 'paymentMilestones', 'files', 'gallery', 'contract', 'invoices']);
         $this->status = $project->status->value;
     }
 

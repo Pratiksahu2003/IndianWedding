@@ -43,14 +43,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $super = User::query()->updateOrCreate(['email' => 'superadmin@vedmint.com'], [
-            'name' => 'Super Admin',
-            'password' => Hash::make('password'),
-            'is_super_admin' => true,
-            'email_verified_at' => now(),
-            'ulid' => (string) Str::ulid(),
-        ]);
-
         $org = Organization::query()->updateOrCreate(['slug' => 'lumina-atelier'], [
             'name' => 'Lumina Atelier',
             'plan_id' => Plan::query()->where('slug', 'professional')->value('id'),
@@ -231,7 +223,8 @@ class DatabaseSeeder extends Seeder
             app(RecordPayment::class)->handle($advance, $advance->amount, ['gateway' => 'manual', 'notes' => 'Demo advance']);
         }
 
+        $this->call(UnikStudioContentSeeder::class);
+
         $this->command?->info('Demo studio ready. Login admin@demo.vedmint.com / password');
-        $this->command?->info('Super admin superadmin@vedmint.com / password');
     }
 }

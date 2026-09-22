@@ -3,11 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Lumina Atelier' }} · Wedding Photography</title>
-    <meta name="description" content="{{ $description ?? 'Editorial wedding photography for modern celebrations.' }}">
+    <title>{{ $title ?? site('seo.title', 'Unik Studio') }}</title>
+    <meta name="description" content="{{ $description ?? site('seo.description') }}">
     <link rel="canonical" href="{{ url()->current() }}">
-    <meta property="og:title" content="{{ $title ?? 'Lumina Atelier' }}">
-    <meta property="og:description" content="{{ $description ?? 'Editorial wedding photography for modern celebrations.' }}">
+    <meta property="og:title" content="{{ $title ?? site('seo.title', 'Unik Studio') }}">
+    <meta property="og:description" content="{{ $description ?? site('seo.description') }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta name="twitter:card" content="summary_large_image">
@@ -15,51 +15,101 @@
         $schema = [
             '@context' => 'https://schema.org',
             '@type' => 'ProfessionalService',
-            'name' => $organization->name ?? 'Lumina Atelier',
+            'name' => site('brand.name', $organization->name ?? 'Unik Studio'),
             'url' => url('/'),
+            'telephone' => site('contact.phone', $organization->phone ?? ''),
+            'email' => site('contact.emails', $organization->email ?? ''),
+            'address' => site('contact.office'),
+            'logo' => studio_logo(),
             'areaServed' => 'India',
         ];
     @endphp
     <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=cormorant-garamond:500,600,700|outfit:300,400,500,600" rel="stylesheet" />
+    @include('partials.brand-head')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
 <body class="bg-[#f6f1ea] font-[Outfit] text-[#16120f]">
-    <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 bg-white px-3 py-2">Skip to content</a>
-    <header x-data="{ open: false }" class="fixed inset-x-0 top-0 z-40 border-b border-[#16120f]/10 bg-[#f6f1ea]/80 backdrop-blur-xl">
-        <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-            <a href="/" class="font-[Cormorant_Garamond] text-2xl tracking-[0.2em]">LUMINA</a>
-            <nav class="hidden items-center gap-7 text-sm md:flex">
-                @foreach (['about'=>'About','services'=>'Services','packages'=>'Packages','portfolio'=>'Portfolio','gallery'=>'Gallery','faq'=>'FAQ','contact'=>'Contact'] as $href=>$label)
-                    <a class="hover:text-[#9b7b4b]" href="/{{ $href }}">{{ $label }}</a>
+    <a href="#content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 z-50 bg-white px-3 py-2">Skip to content</a>
+    @php
+        $navLinks = [
+            ['/', site('nav.home', 'Home'), request()->is('/')],
+            ['/about', site('nav.about', 'About'), request()->is('about')],
+            ['/our-team', site('nav.team', 'Our Team'), request()->is('our-team')],
+            ['/services', site('nav.services', 'Service'), request()->is('services*') || request()->is('packages*')],
+            ['/gallery', site('nav.gallery', 'Gallery'), request()->is('gallery') || request()->is('portfolio*') || request()->is('projects*')],
+            ['/testimonials', site('nav.testimonials', 'Feedbacks'), request()->is('testimonials')],
+            ['/contact', site('nav.contact', 'Contact'), request()->is('contact')],
+        ];
+    @endphp
+    <header x-data="{ open: false }" class="fixed inset-x-0 top-0 z-40 bg-[#0c0b0a]/95 text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
+        <div class="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 md:px-6">
+            <a href="/" class="inline-flex shrink-0 items-center">
+                <x-brand-logo class="h-9 max-w-[168px] lg:h-10 lg:max-w-[196px]" />
+            </a>
+            <nav class="hidden min-w-0 flex-1 items-center justify-end gap-0.5 text-[11px] font-medium tracking-wide whitespace-nowrap md:flex lg:gap-1 lg:text-[13px]">
+                @foreach ($navLinks as [$href, $label, $active])
+                    <a href="{{ $href }}" class="rounded-full px-2 py-1.5 transition lg:px-3 lg:py-2 {{ $active ? 'bg-white/10 text-[#e2c48a]' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">{{ $label }}</a>
                 @endforeach
-                <a href="/book-consultation" class="rounded-full bg-[#16120f] px-4 py-2 text-white">Book consultation</a>
+                <a href="/book-consultation" class="ml-1 shrink-0 rounded-full bg-[#c4a574] px-3 py-1.5 text-[#16120f] shadow-sm transition hover:bg-[#d4b888] lg:ml-2 lg:px-4 lg:py-2">{{ site('nav.reservation', 'Make Reservation') }}</a>
             </nav>
-            <button class="md:hidden" @click="open=!open" aria-label="Open menu">Menu</button>
+            <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white md:hidden" @click="open=!open" :aria-expanded="open" aria-label="Open menu">
+                <svg x-show="!open" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                <svg x-show="open" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
         </div>
-        <div x-show="open" x-cloak class="border-t border-[#16120f]/10 bg-[#f6f1ea] px-6 py-4 md:hidden">
-            <div class="flex flex-col gap-3 text-sm">
-                @foreach (['about','services','packages','portfolio','gallery','testimonials','faq','contact','book-consultation'] as $href)
-                    <a href="/{{ $href }}">{{ str_replace('-', ' ', ucfirst($href)) }}</a>
+        <div x-show="open" x-cloak x-transition class="border-t border-white/10 bg-[#0c0b0a] px-5 py-4 md:hidden">
+            <div class="flex flex-col gap-1 text-sm">
+                @foreach ($navLinks as [$href, $label, $active])
+                    <a href="{{ $href }}" class="rounded-xl px-3 py-2.5 {{ $active ? 'bg-white/10 text-[#e2c48a]' : 'text-white/80' }}">{{ $label }}</a>
                 @endforeach
+                <a href="/faq" class="rounded-xl px-3 py-2.5 text-white/80">{{ site('nav.faq', 'FAQ') }}</a>
+                <a href="/book-consultation" class="mt-2 rounded-full bg-[#c4a574] px-4 py-3 text-center font-medium text-[#16120f]">{{ site('nav.reservation', 'Make Reservation') }}</a>
             </div>
         </div>
     </header>
-    <main id="content" class="pt-20">
+    <main id="content" class="pt-[68px]">
         {{ $slot ?? '' }}
         @yield('content')
     </main>
-    <footer class="mt-24 border-t border-[#16120f]/10 px-6 py-16 text-sm">
-        <div class="mx-auto flex max-w-6xl flex-col justify-between gap-6 md:flex-row">
-            <div>
-                <p class="font-[Cormorant_Garamond] text-3xl">Lumina Atelier</p>
-                <p class="mt-2 max-w-sm text-[#16120f]/70">Quiet luxury wedding photography. Films, albums, and archives crafted with restraint.</p>
+    <footer class="mt-24 bg-[#0c0b0a] text-white">
+        <div class="mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-12 md:px-8">
+            <div class="md:col-span-5">
+                <a href="/" class="inline-flex items-center">
+                    <x-brand-logo class="h-14 max-w-[260px]" />
+                </a>
+                <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/60">{{ site('footer.blurb') }}</p>
+                <a href="/book-consultation" class="mt-6 inline-flex rounded-full bg-[#c4a574] px-5 py-2.5 text-sm font-medium text-[#16120f] transition hover:bg-[#d4b888]">{{ site('nav.reservation', 'Make Reservation') }}</a>
             </div>
-            <div class="flex gap-10">
-                <a href="/contact">Contact</a>
-                <a href="/login">Client / studio login</a>
+            <div class="md:col-span-3">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c4a574]">{{ site('footer.links_heading', 'Links') }}</p>
+                <div class="mt-4 flex flex-col gap-2.5 text-sm text-white/70">
+                    <a class="transition hover:text-white" href="/">{{ site('nav.home', 'Home') }}</a>
+                    <a class="transition hover:text-white" href="/about">{{ site('nav.about', 'About us') }}</a>
+                    <a class="transition hover:text-white" href="/services">{{ site('nav.services', 'Our Services') }}</a>
+                    <a class="transition hover:text-white" href="/gallery">{{ site('nav.gallery', 'Gallery') }}</a>
+                    <a class="transition hover:text-white" href="/contact">{{ site('nav.contact', 'Get in touch') }}</a>
+                    <a class="transition hover:text-white" href="/login">Client / studio login</a>
+                </div>
+            </div>
+            <div class="md:col-span-4">
+                <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c4a574]">{{ site('footer.contact_heading', 'Contact Info') }}</p>
+                <div class="mt-4 space-y-3 text-sm leading-relaxed text-white/70">
+                    <p>{{ site('contact.phone') }}</p>
+                    <p>{{ site('contact.emails') }}</p>
+                    <p>{{ site('contact.office') }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-white/10">
+            <div class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-white/40 md:flex-row md:items-center md:justify-between md:px-8">
+                <p>{{ site('footer.copyright') }}</p>
+                <p>
+                    Designed and Developed by
+                    <a href="https://www.vedmint.com" target="_blank" rel="noopener noreferrer" class="text-[#c4a574] transition hover:text-[#e2c48a]">VedMint Consultancy Service</a>
+                </p>
             </div>
         </div>
     </footer>

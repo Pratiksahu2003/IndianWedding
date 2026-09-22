@@ -15,8 +15,9 @@ use App\Http\Controllers\Webhook\WhatsAppWebhookController;
 use App\Livewire\Client\Dashboard as ClientDashboard;
 use App\Livewire\Client\Gallery as ClientGallery;
 use App\Livewire\Client\Payments as ClientPayments;
+use App\Livewire\Client\ProjectShow as ClientProject;
 use App\Livewire\Client\Timeline as ClientTimeline;
-use App\Livewire\Platform\Dashboard as PlatformDashboard;
+use App\Livewire\Platform\WebsiteEditor;
 use App\Livewire\Studio\Calendar\Index as CalendarIndex;
 use App\Livewire\Studio\Clients\Index as ClientsIndex;
 use App\Livewire\Studio\Consultations\Index as ConsultationsIndex;
@@ -30,11 +31,14 @@ use App\Livewire\Studio\Leads\Pipeline as LeadsPipeline;
 use App\Livewire\Studio\Leads\Show as LeadShow;
 use App\Livewire\Studio\Messages\Index as MessagesIndex;
 use App\Livewire\Studio\Packages\Index as PackagesIndex;
+use App\Livewire\Studio\Packages\Show as PackageShow;
 use App\Livewire\Studio\Payments\Index as PaymentsIndex;
 use App\Livewire\Studio\Projects\Index as ProjectsIndex;
 use App\Livewire\Studio\Projects\Show as ProjectShow;
 use App\Livewire\Studio\Reports\Index as ReportsIndex;
+use App\Livewire\Studio\Settings\EmailSmtp;
 use App\Livewire\Studio\Settings\Index as SettingsIndex;
+use App\Livewire\Studio\Settings\PaymentGateway as PaymentGatewaySettings;
 use App\Livewire\Studio\Tasks\Index as TasksIndex;
 use App\Livewire\Studio\Team\Index as TeamIndex;
 use Illuminate\Support\Facades\Route;
@@ -44,8 +48,12 @@ Route::get('/robots.txt', [SeoController::class, 'robots']);
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);
 
 Route::get('/', [WebsiteController::class, 'home'])->name('home');
+Route::get('/services/{slug}', [WebsiteController::class, 'service'])->name('public.services.show');
+Route::get('/packages/{slug}', [WebsiteController::class, 'service'])->name('public.packages.show');
+Route::get('/projects/{slug}', [WebsiteController::class, 'project'])->name('public.projects.show');
+Route::get('/portfolio/{slug}', [WebsiteController::class, 'project'])->name('public.portfolio.show');
 Route::get('/{page}', [WebsiteController::class, 'page'])
-    ->whereIn('page', ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation']);
+    ->whereIn('page', ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team']);
 
 Route::post('/inquiry', [InquiryController::class, 'store'])
     ->middleware('throttle:8,1')
@@ -83,6 +91,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/clients', ClientsIndex::class)->name('clients.index');
         Route::get('/consultations', ConsultationsIndex::class)->name('consultations.index');
         Route::get('/packages', PackagesIndex::class)->name('packages.index');
+        Route::get('/packages/{package}', PackageShow::class)->name('packages.show');
         Route::get('/projects', ProjectsIndex::class)->name('projects.index');
         Route::get('/projects/{project}', ProjectShow::class)->name('projects.show');
         Route::get('/calendar', CalendarIndex::class)->name('calendar');
@@ -95,16 +104,19 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/messages', MessagesIndex::class)->name('messages.index');
         Route::get('/reports', ReportsIndex::class)->name('reports.index');
         Route::get('/settings', SettingsIndex::class)->name('settings.index');
+        Route::get('/settings/payments', PaymentGatewaySettings::class)->name('settings.payments');
+        Route::get('/settings/email', EmailSmtp::class)->name('settings.email');
+        Route::get('/website', WebsiteEditor::class)->name('website');
     });
 
     Route::prefix('client')->name('client.')->middleware('role:client')->group(function () {
         Route::get('/', ClientDashboard::class)->name('dashboard');
+        Route::get('/project/{project}', ClientProject::class)->name('project');
         Route::get('/payments', ClientPayments::class)->name('payments');
         Route::get('/gallery', ClientGallery::class)->name('gallery');
         Route::get('/timeline', ClientTimeline::class)->name('timeline');
     });
 
-    Route::prefix('platform')->name('platform.')->middleware('superadmin')->group(function () {
-        Route::get('/', PlatformDashboard::class)->name('dashboard');
-    });
+    Route::redirect('/platform', '/app');
+    Route::redirect('/platform/{any}', '/app')->where('any', '.*');
 });
