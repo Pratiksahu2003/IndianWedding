@@ -14,19 +14,21 @@ class SetCurrentOrganization
         $user = $request->user();
 
         if (! $user) {
+            Tenant::set(Tenant::soleOrganizationId());
+
             return $next($request);
         }
 
-        $orgId = $request->session()->get('current_organization_id');
-        if (! $orgId) {
-            $orgId = $user->memberships()->value('organization_id');
-            if ($orgId) {
-                $request->session()->put('current_organization_id', $orgId);
-            }
-        }
+        $orgId = $request->session()->get('current_organization_id')
+            ?: Tenant::soleOrganizationId()
+            ?: $user->memberships()->value('organization_id');
 
         if ($orgId && ! $user->memberships()->where('organization_id', $orgId)->exists()) {
-            abort(403);
+            $orgId = $user->memberships()->value('organization_id') ?: Tenant::soleOrganizationId();
+        }
+
+        if ($orgId) {
+            $request->session()->put('current_organization_id', $orgId);
         }
 
         Tenant::set($orgId ? (int) $orgId : null);

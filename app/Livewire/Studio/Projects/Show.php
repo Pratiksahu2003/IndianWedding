@@ -97,9 +97,20 @@ class Show extends Component
 
     public function render()
     {
+        $this->project->refresh();
+
         return view('livewire.studio.projects.show', [
             'statuses' => ProjectStatus::cases(),
-            'staff' => User::query()->whereHas('memberships', fn ($q) => $q->where('organization_id', $this->project->organization_id)->whereIn('role', ['photographer', 'videographer', 'editor', 'manager']))->orderBy('name')->get(),
+            'staff' => User::query()
+                ->whereHas('memberships', fn ($q) => $q
+                    ->where('organization_id', $this->project->organization_id)
+                    ->whereIn('role', ['studio_admin', 'admin', 'manager', 'photographer', 'videographer', 'editor']))
+                ->orderBy('name')
+                ->get(),
+            'teamMembers' => $this->project->team()->with('user')->get(),
+            'milestones' => $this->project->paymentMilestones()->orderBy('sort_order')->get(),
+            'projectFiles' => $this->project->files()->latest()->get(),
+            'projectTasks' => $this->project->tasks()->with('assignee')->latest()->get(),
         ])->title($this->project->title);
     }
 }

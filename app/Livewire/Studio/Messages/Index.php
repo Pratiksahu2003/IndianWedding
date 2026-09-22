@@ -18,7 +18,7 @@ class Index extends Component
     {
         $this->validate(['body' => ['required', 'string', 'max:4000']]);
         Message::query()->create([
-            'organization_id' => Tenant::id(),
+            'organization_id' => Tenant::requireId(),
             'sender_id' => auth()->id(),
             'body' => $this->body,
         ]);

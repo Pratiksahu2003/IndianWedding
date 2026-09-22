@@ -40,7 +40,13 @@ class Index extends Component
             'includes_drone' => ['boolean'],
             'description' => ['nullable', 'string'],
         ]);
-        Package::query()->create($data + ['price' => Money::fromMajor($this->price)]);
+        Package::query()->create($data + [
+            'organization_id' => \App\Support\Tenant::requireId(),
+            'price' => Money::fromMajor($this->price),
+            'slug' => \Illuminate\Support\Str::slug($this->name).'-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(4)),
+            'is_active' => true,
+            'is_public' => true,
+        ]);
         $this->reset('name', 'description', 'price');
         session()->flash('status', 'Package created.');
     }

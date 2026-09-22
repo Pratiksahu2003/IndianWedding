@@ -117,4 +117,44 @@
             scroll-behavior: auto !important;
         }
     }
+
+    .studio-calendar .fc {
+        --fc-border-color: rgb(22 18 15 / 0.08);
+        --fc-button-bg-color: #16120f;
+        --fc-button-border-color: #16120f;
+        --fc-button-hover-bg-color: #2a2218;
+        --fc-button-hover-border-color: #2a2218;
+        --fc-button-active-bg-color: #2a2218;
+        --fc-button-active-border-color: #2a2218;
+        --fc-today-bg-color: rgb(196 165 116 / 0.12);
+        --fc-event-border-color: transparent;
+        --fc-page-bg-color: #fff;
+        --fc-neutral-bg-color: #f6f1ea;
+        font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .studio-calendar .fc-toolbar-title {
+        font-family: 'Cormorant Garamond', Georgia, serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .studio-calendar .fc-col-header-cell-cushion,
+    .studio-calendar .fc-daygrid-day-number,
+    .studio-calendar .fc-list-day-text,
+    .studio-calendar .fc-list-day-side-text {
+        color: rgb(22 18 15 / 0.55);
+        text-decoration: none;
+    }
+
+    .studio-calendar .fc-event {
+        border-radius: 0.375rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        padding: 1px 4px;
+    }
+
+    .studio-calendar .fc-daygrid-event-dot {
+        display: none;
+    }
 }

@@ -40,6 +40,7 @@ use App\Livewire\Studio\Settings\Index as SettingsIndex;
 use App\Livewire\Studio\Settings\PaymentGateway as PaymentGatewaySettings;
 use App\Livewire\Studio\Tasks\Index as TasksIndex;
 use App\Livewire\Studio\Team\Index as TeamIndex;
+use App\Livewire\Studio\Team\Permissions as TeamPermissions;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', HealthController::class)->name('health');
@@ -96,6 +97,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/projects/{project}', ProjectShow::class)->name('projects.show');
         Route::get('/calendar', CalendarIndex::class)->name('calendar');
         Route::get('/team', TeamIndex::class)->name('team.index');
+        Route::get('/team/permissions', TeamPermissions::class)->name('team.permissions');
         Route::get('/tasks', TasksIndex::class)->name('tasks.index');
         Route::get('/payments', PaymentsIndex::class)->name('payments.index');
         Route::get('/invoices', InvoicesIndex::class)->name('invoices.index');

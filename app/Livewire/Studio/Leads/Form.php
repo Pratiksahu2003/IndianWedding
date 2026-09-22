@@ -43,7 +43,7 @@ class Form extends Component
             'notes' => ['nullable', 'string'],
         ]);
 
-        $org = Tenant::current() ?? Organization::query()->findOrFail(session('current_organization_id'));
+        $org = Tenant::current() ?? Organization::query()->findOrFail(Tenant::soleOrganizationId() ?? session('current_organization_id'));
         $lead = $action->handle($org, $data + ['source' => 'manual', 'assigned_to' => auth()->id()]);
 
         return redirect()->route('app.leads.show', $lead);

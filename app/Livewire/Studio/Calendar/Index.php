@@ -46,7 +46,7 @@ class Index extends Component
 
     public function addSchedule(): void
     {
-        $this->ensureStaffCanManageCalendar();
+        $this->ensureStaffCanAddToCalendar();
 
         $rules = [
             'kind' => ['required', 'in:general,consultation_slot,project_event'],
@@ -67,7 +67,7 @@ class Index extends Component
 
         $this->validate($rules);
 
-        $orgId = Tenant::id();
+        $orgId = Tenant::requireId();
         $startsAt = Carbon::parse($this->date.' '.$this->start_time);
         $endsAt = $this->end_time
             ? Carbon::parse($this->date.' '.$this->end_time)
@@ -87,6 +87,7 @@ class Index extends Component
             session()->flash('status', 'Consultation slot added to the calendar.');
 
             $this->resetForm();
+            $this->dispatchCalendarRefresh();
 
             return;
         }
@@ -110,6 +111,7 @@ class Index extends Component
             session()->flash('status', 'Project event added to the calendar.');
 
             $this->resetForm();
+            $this->dispatchCalendarRefresh();
 
             return;
         }
@@ -127,16 +129,51 @@ class Index extends Component
         session()->flash('status', 'Schedule saved.');
 
         $this->resetForm();
+        $this->dispatchCalendarRefresh();
     }
 
     public function deleteSchedule(int $scheduleId): void
     {
-        $this->ensureStaffCanManageCalendar();
+        $this->deleteCalendarEvent('schedule', $scheduleId);
+    }
 
-        $schedule = StudioSchedule::query()->findOrFail($scheduleId);
+    public function deleteCalendarEvent(string $type, int $id): void
+    {
+        $this->ensureStaffCanViewCalendar();
+
+        match ($type) {
+            'schedule' => $this->deleteStudioSchedule($id),
+            'project_event' => $this->deleteProjectEvent($id),
+            'slot' => $this->deleteConsultationSlot($id),
+            default => abort(404),
+        };
+
+        session()->flash('status', 'Calendar item removed.');
+        $this->dispatchCalendarRefresh();
+    }
+
+    protected function deleteStudioSchedule(int $id): void
+    {
+        $schedule = StudioSchedule::query()->findOrFail($id);
+        $this->ensureStaffCanDeleteSchedule($schedule);
         $schedule->delete();
+    }
 
-        session()->flash('status', 'Schedule removed.');
+    protected function deleteProjectEvent(int $id): void
+    {
+        abort_unless(auth()->user()?->canDeleteInOrganization(Tenant::current()), 403);
+        ProjectEvent::query()->findOrFail($id)->delete();
+    }
+
+    protected function deleteConsultationSlot(int $id): void
+    {
+        abort_unless(auth()->user()?->canDeleteInOrganization(Tenant::current()), 403);
+        ConsultationSlot::query()->findOrFail($id)->delete();
+    }
+
+    public function updatedMonth(): void
+    {
+        $this->dispatchCalendarRefresh();
     }
 
     protected function resetForm(): void
@@ -148,48 +185,193 @@ class Index extends Component
         $this->end_time = '11:00';
     }
 
-    protected function ensureStaffCanManageCalendar(): void
+    protected function ensureStaffCanViewCalendar(): void
     {
-        $role = auth()->user()?->roleIn(Tenant::current());
-        abort_unless($role?->isStaff(), 403);
-        abort_unless(auth()->user()?->canInOrganization('calendar.manage', Tenant::current()), 403);
+        $user = auth()->user();
+        abort_unless($user, 403);
+
+        // Ensure single-studio context is bound even without session org id.
+        if (! Tenant::id()) {
+            Tenant::set(Tenant::soleOrganizationId());
+        }
+
+        abort_unless(
+            $user->hasFullStudioAccess()
+            || $user->canInOrganization('calendar.manage')
+            || $user->canInOrganization('calendar.view')
+            || $user->roleIn()?->isStaff(),
+            403,
+        );
     }
 
-    public function render()
+    protected function ensureStaffCanAddToCalendar(): void
     {
-        $role = auth()->user()?->roleIn(Tenant::current());
-        abort_unless($role?->isStaff(), 403);
+        $this->ensureStaffCanViewCalendar();
+    }
 
-        $start = Carbon::parse($this->month.'-01')->startOfMonth();
-        $end = $start->copy()->endOfMonth();
+    protected function ensureStaffCanDeleteSchedule(StudioSchedule $schedule): void
+    {
+        $this->ensureStaffCanViewCalendar();
+        abort_unless(auth()->user()?->canDeleteInOrganization(Tenant::current()), 403);
+    }
 
-        $events = ProjectEvent::query()->with('project')->whereBetween('date', [$start, $end])->orderBy('date')->get();
-        $consults = Consultation::query()->whereBetween('starts_at', [$start, $end])->orderBy('starts_at')->get();
-        $slots = ConsultationSlot::query()->with('staff')->whereBetween('date', [$start, $end])->orderBy('date')->get();
-        $schedules = StudioSchedule::query()->with(['creator', 'project'])->whereBetween('starts_at', [$start, $end])->orderBy('starts_at')->get();
-        $followUps = Lead::query()
-            ->whereNotNull('follow_up_at')
-            ->whereBetween('follow_up_at', [$start, $end])
-            ->orderBy('follow_up_at')
-            ->get(['id', 'name', 'lead_number', 'follow_up_at']);
+    protected function dispatchCalendarRefresh(): void
+    {
+        [$start, $end] = $this->visibleRange();
 
-        $projects = Project::query()->orderByDesc('wedding_date')->limit(100)->get(['id', 'title', 'project_number']);
+        $this->dispatch('calendar-refreshed', events: $this->buildCalendarEvents(
+            $this->fetchEvents($start, $end),
+        ));
+    }
 
-        $timeline = $this->buildTimeline($events, $consults, $slots, $schedules, $followUps);
+    /**
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    protected function visibleRange(): array
+    {
+        $center = Carbon::parse($this->month.'-01');
 
-        return view('livewire.studio.calendar.index', [
-            'start' => $start,
-            'end' => $end,
-            'events' => $events,
-            'consults' => $consults,
-            'slots' => $slots,
-            'schedules' => $schedules,
-            'followUps' => $followUps,
-            'timeline' => $timeline,
-            'projects' => $projects,
-            'eventTypes' => EventType::cases(),
-            'canManage' => auth()->user()?->canInOrganization('calendar.manage', Tenant::current()),
-        ]);
+        return [
+            $center->copy()->startOfMonth()->startOfWeek(Carbon::MONDAY),
+            $center->copy()->endOfMonth()->endOfWeek(Carbon::MONDAY),
+        ];
+    }
+
+    /**
+     * @return array{
+     *     events: Collection,
+     *     consults: Collection,
+     *     slots: Collection,
+     *     schedules: Collection,
+     *     followUps: Collection,
+     * }
+     */
+    protected function fetchEvents(Carbon $start, Carbon $end): array
+    {
+        return [
+            'events' => ProjectEvent::query()->with('project')->whereBetween('date', [$start, $end])->orderBy('date')->get(),
+            'consults' => Consultation::query()->whereBetween('starts_at', [$start, $end])->orderBy('starts_at')->get(),
+            'slots' => ConsultationSlot::query()->with('staff')->whereBetween('date', [$start, $end])->orderBy('date')->get(),
+            'schedules' => StudioSchedule::query()->with(['creator', 'project'])->whereBetween('starts_at', [$start, $end])->orderBy('starts_at')->get(),
+            'followUps' => Lead::query()
+                ->whereNotNull('follow_up_at')
+                ->whereBetween('follow_up_at', [$start, $end])
+                ->orderBy('follow_up_at')
+                ->get(['id', 'name', 'lead_number', 'follow_up_at']),
+        ];
+    }
+
+    /**
+     * @param  array{
+     *     events: Collection,
+     *     consults: Collection,
+     *     slots: Collection,
+     *     schedules: Collection,
+     *     followUps: Collection,
+     * }  $data
+     * @return list<array<string, mixed>>
+     */
+    protected function buildCalendarEvents(array $data): array
+    {
+        $items = [];
+        $canDeleteAny = auth()->user()?->canDeleteInOrganization(Tenant::current()) ?? false;
+        $userId = auth()->id();
+
+        foreach ($data['events'] as $event) {
+            $date = $event->date?->format('Y-m-d') ?? now()->toDateString();
+            $start = Carbon::parse($date.' '.($event->start_time ?? '09:00'));
+            $end = $event->end_time
+                ? Carbon::parse($date.' '.$event->end_time)
+                : $start->copy()->addHours(2);
+
+            $items[] = [
+                'id' => 'project-event-'.$event->id,
+                'title' => $event->title,
+                'start' => $start->toIso8601String(),
+                'end' => $end->toIso8601String(),
+                'allDay' => blank($event->start_time),
+                'type' => 'Project',
+                'meta' => ucfirst($event->type->value).' · '.($event->project?->title ?? 'Project'),
+                'url' => $event->project ? route('app.projects.show', $event->project) : null,
+                'deletable' => $canDeleteAny,
+                'recordType' => 'project_event',
+                'recordId' => $event->id,
+                'scheduleId' => null,
+            ];
+        }
+
+        foreach ($data['consults'] as $consult) {
+            $items[] = [
+                'id' => 'consultation-'.$consult->id,
+                'title' => $consult->name,
+                'start' => $consult->starts_at->toIso8601String(),
+                'end' => $consult->starts_at->copy()->addHour()->toIso8601String(),
+                'allDay' => false,
+                'type' => 'Consultation',
+                'meta' => 'Client consultation',
+                'url' => route('app.consultations.index'),
+                'deletable' => false,
+                'scheduleId' => null,
+            ];
+        }
+
+        foreach ($data['slots'] as $slot) {
+            $start = Carbon::parse($slot->date->format('Y-m-d').' '.$slot->start_time);
+            $end = Carbon::parse($slot->date->format('Y-m-d').' '.$slot->end_time);
+
+            $items[] = [
+                'id' => 'slot-'.$slot->id,
+                'title' => 'Consultation slot open',
+                'start' => $start->toIso8601String(),
+                'end' => $end->toIso8601String(),
+                'allDay' => false,
+                'type' => 'Availability',
+                'meta' => $slot->start_time.' – '.$slot->end_time.' · '.($slot->staff?->name ?? 'Studio'),
+                'url' => route('app.consultations.index'),
+                'deletable' => $canDeleteAny,
+                'recordType' => 'slot',
+                'recordId' => $slot->id,
+                'scheduleId' => null,
+            ];
+        }
+
+        foreach ($data['schedules'] as $schedule) {
+            $items[] = [
+                'id' => 'schedule-'.$schedule->id,
+                'title' => $schedule->title,
+                'start' => $schedule->starts_at->toIso8601String(),
+                'end' => ($schedule->ends_at ?? $schedule->starts_at->copy()->addHour())->toIso8601String(),
+                'allDay' => false,
+                'type' => 'Schedule',
+                'meta' => trim(collect([
+                    $schedule->starts_at->format('M j · g:i A'),
+                    $schedule->project?->title,
+                    $schedule->creator?->name,
+                ])->filter()->implode(' · ')),
+                'url' => $schedule->project ? route('app.projects.show', $schedule->project) : null,
+                'deletable' => $canDeleteAny,
+                'recordType' => 'schedule',
+                'recordId' => $schedule->id,
+                'scheduleId' => $schedule->id,
+            ];
+        }
+
+        foreach ($data['followUps'] as $lead) {
+            $items[] = [
+                'id' => 'lead-'.$lead->id,
+                'title' => 'Follow up: '.$lead->name,
+                'start' => $lead->follow_up_at->toIso8601String(),
+                'end' => $lead->follow_up_at->copy()->addHour()->toIso8601String(),
+                'allDay' => false,
+                'type' => 'Lead',
+                'meta' => $lead->lead_number,
+                'url' => route('app.leads.show', $lead),
+                'deletable' => false,
+                'scheduleId' => null,
+            ];
+        }
+
+        return $items;
     }
 
     /**
@@ -207,6 +389,7 @@ class Index extends Component
         Collection $schedules,
         Collection $followUps,
     ): Collection {
+        $canDeleteAny = auth()->user()?->canDeleteInOrganization(Tenant::current()) ?? false;
         $items = collect();
 
         foreach ($events as $event) {
@@ -258,7 +441,7 @@ class Index extends Component
                 ])->filter()->implode(' · ')),
                 'badge' => 'Schedule',
                 'href' => $schedule->project ? route('app.projects.show', $schedule->project) : null,
-                'deletable' => true,
+                'deletable' => $canDeleteAny,
                 'id' => $schedule->id,
             ]);
         }
@@ -276,5 +459,42 @@ class Index extends Component
         }
 
         return $items->sortBy('sort')->values();
+    }
+
+    public function render()
+    {
+        $this->ensureStaffCanViewCalendar();
+
+        [$start, $end] = $this->visibleRange();
+        $data = $this->fetchEvents($start, $end);
+
+        $projects = Project::query()->orderByDesc('wedding_date')->limit(100)->get(['id', 'title', 'project_number']);
+
+        $timeline = $this->buildTimeline(
+            $data['events'],
+            $data['consults'],
+            $data['slots'],
+            $data['schedules'],
+            $data['followUps'],
+        );
+
+        $calendarEvents = $this->buildCalendarEvents($data);
+        $role = auth()->user()?->roleIn(Tenant::current());
+
+        return view('livewire.studio.calendar.index', [
+            'start' => Carbon::parse($this->month.'-01')->startOfMonth(),
+            'end' => Carbon::parse($this->month.'-01')->endOfMonth(),
+            'events' => $data['events'],
+            'consults' => $data['consults'],
+            'consultationSlots' => $data['slots'],
+            'schedules' => $data['schedules'],
+            'followUps' => $data['followUps'],
+            'timeline' => $timeline,
+            'projects' => $projects,
+            'eventTypes' => EventType::cases(),
+            'calendarEvents' => $calendarEvents,
+            'canAdd' => $role?->isStaff() ?? false,
+            'canManage' => auth()->user()?->canInOrganization('calendar.manage', Tenant::current()),
+        ]);
     }
 }

@@ -67,6 +67,16 @@ class Lead extends Model
         return $this->hasMany(LeadNote::class);
     }
 
+    /**
+     * Alias for notes() — use this in views/Livewire.
+     * The leads table also has a text `notes` column; accessing $lead->notes
+     * returns that string unless the relation is explicitly loaded.
+     */
+    public function leadNotes(): HasMany
+    {
+        return $this->notes();
+    }
+
     public function followups(): HasMany
     {
         return $this->hasMany(LeadFollowup::class);

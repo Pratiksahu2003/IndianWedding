@@ -5,6 +5,7 @@ namespace App\Enums;
 enum Role: string
 {
     case StudioAdmin = 'studio_admin';
+    case Admin = 'admin';
     case Manager = 'manager';
     case Photographer = 'photographer';
     case Videographer = 'videographer';
@@ -14,7 +15,8 @@ enum Role: string
     public function label(): string
     {
         return match ($this) {
-            self::StudioAdmin => 'Admin',
+            self::StudioAdmin => 'Studio Admin',
+            self::Admin => 'Admin',
             self::Manager => 'Manager',
             self::Photographer => 'Photographer',
             self::Videographer => 'Videographer',
@@ -25,13 +27,12 @@ enum Role: string
 
     public function permissions(): array
     {
+        // Studio Admin + Admin: every permission (delete is gated separately).
+        if ($this === self::StudioAdmin || $this === self::Admin) {
+            return Permission::values();
+        }
+
         return match ($this) {
-            self::StudioAdmin => [
-                'billing.manage', 'users.manage', 'settings.manage', 'leads.manage',
-                'projects.manage', 'payments.manage', 'files.manage', 'reports.view',
-                'packages.manage', 'consultations.manage', 'team.assign', 'galleries.manage',
-                'invoices.manage', 'clients.manage', 'messages.manage', 'calendar.manage',
-            ],
             self::Manager => [
                 'leads.manage', 'projects.manage', 'payments.manage', 'reports.view',
                 'clients.manage', 'team.assign', 'consultations.manage', 'invoices.manage',
@@ -54,9 +55,21 @@ enum Role: string
 
     public function can(string $permission): bool
     {
-        $perms = $this->permissions();
+        return in_array($permission, $this->permissions(), true);
+    }
 
-        return in_array($permission, $perms, true);
+    /**
+     * Only Studio Admin may permanently delete records.
+     * Admin can create/update/view everything but cannot delete.
+     */
+    public function canDelete(): bool
+    {
+        return $this === self::StudioAdmin;
+    }
+
+    public function hasFullAccess(): bool
+    {
+        return $this === self::StudioAdmin || $this === self::Admin;
     }
 
     public function isStaff(): bool
@@ -67,5 +80,16 @@ enum Role: string
     public function dashboardRoute(): string
     {
         return $this === self::Client ? 'client.dashboard' : 'app.dashboard';
+    }
+
+    /**
+     * @return list<self>
+     */
+    public static function staffRoles(): array
+    {
+        return array_values(array_filter(
+            self::cases(),
+            fn (self $role) => $role->isStaff(),
+        ));
     }
 }

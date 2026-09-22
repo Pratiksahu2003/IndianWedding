@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
 
         $roles = [
             'admin@demo.vedmint.com' => [Role::StudioAdmin, 'Aanya Kapoor'],
-            'manager@demo.vedmint.com' => [Role::Manager, 'Rohan Mehta'],
+            'manager@demo.vedmint.com' => [Role::Admin, 'Rohan Mehta'],
             'photographer@demo.vedmint.com' => [Role::Photographer, 'Ishaan Rao'],
             'videographer@demo.vedmint.com' => [Role::Videographer, 'Meera Shah'],
             'editor@demo.vedmint.com' => [Role::Editor, 'Kabir Anand'],
@@ -164,7 +164,7 @@ class DatabaseSeeder extends Seeder
 
         ConsultationSlot::query()->create([
             'organization_id' => $org->id,
-            'staff_user_id' => $users[Role::Manager->value]->id,
+            'staff_user_id' => $users[Role::Admin->value]->id,
             'date' => now()->addDays(4)->toDateString(),
             'start_time' => '11:00:00',
             'end_time' => '12:00:00',
@@ -178,7 +178,7 @@ class DatabaseSeeder extends Seeder
                 'organization_id' => $org->id,
                 'lead_source_id' => $source->id,
                 'package_id' => $heritage->id,
-                'assigned_to' => $users[Role::Manager->value]->id,
+                'assigned_to' => $users[Role::Admin->value]->id,
                 'lead_number' => sprintf('LD-001-%s', str_pad((string) ($i + 1), 3, '0', STR_PAD_LEFT)),
                 'name' => fake()->name(),
                 'email' => fake()->unique()->safeEmail(),
@@ -200,7 +200,7 @@ class DatabaseSeeder extends Seeder
             'organization_id' => $org->id,
             'lead_source_id' => $source->id,
             'package_id' => $heritage->id,
-            'assigned_to' => $users[Role::Manager->value]->id,
+            'assigned_to' => $users[Role::Admin->value]->id,
             'lead_number' => 'LD-001-BOOK',
             'name' => 'Aditi Sharma',
             'email' => 'client@demo.vedmint.com',

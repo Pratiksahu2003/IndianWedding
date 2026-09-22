@@ -30,7 +30,7 @@ class Index extends Component
             'end_time' => ['required', 'after:start_time'],
         ]);
         ConsultationSlot::query()->create([
-            'organization_id' => Tenant::id(),
+            'organization_id' => Tenant::requireId(),
             'staff_user_id' => auth()->id(),
             'date' => $this->date,
             'start_time' => $this->start_time,

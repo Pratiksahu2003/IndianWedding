@@ -30,6 +30,7 @@ class LeadPolicy
 
     public function delete(User $user, Lead $lead): bool
     {
-        return $this->view($user, $lead);
+        return $user->canDeleteInOrganization(Tenant::current())
+            && $this->view($user, $lead);
     }
 }

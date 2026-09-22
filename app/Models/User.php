@@ -44,31 +44,97 @@ class User extends Authenticatable
         return $this->hasMany(OrganizationUser::class);
     }
 
-    public function roleIn(?Organization $organization): ?Role
+    public function membershipIn(?Organization $organization = null): ?OrganizationUser
     {
+        $organization ??= \App\Support\Tenant::current();
+
         if (! $organization) {
-            return null;
+            return $this->memberships()->first();
         }
 
-        $membership = $this->memberships()
+        return $this->memberships()
             ->where('organization_id', $organization->id)
             ->first();
+    }
+
+    public function roleIn(?Organization $organization = null): ?Role
+    {
+        $membership = $this->membershipIn($organization);
 
         if (! $membership) {
             return null;
         }
 
         $value = $membership->role instanceof Role ? $membership->role->value : (string) $membership->role;
+
         if ($value === 'super_admin') {
             $value = Role::StudioAdmin->value;
         }
 
+        // Legacy alias: older "manager" accounts treated as Admin when labeled that way in UI.
         return Role::tryFrom($value);
+    }
+
+    public function isOrganizationOwner(?Organization $organization = null): bool
+    {
+        return (bool) $this->membershipIn($organization)?->is_owner;
+    }
+
+    public function hasFullStudioAccess(?Organization $organization = null): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        $role = $this->roleIn($organization);
+
+        return $role?->hasFullAccess()
+            || $this->isOrganizationOwner($organization);
+    }
+
+    /**
+     * Permanent delete is reserved for Studio Admin (and platform super admin).
+     */
+    public function canDeleteInOrganization(?Organization $organization = null): bool
+    {
+        if ($this->is_super_admin) {
+            return true;
+        }
+
+        return $this->roleIn($organization)?->canDelete() ?? false;
     }
 
     public function canInOrganization(string $permission, ?Organization $organization = null): bool
     {
+        $organization ??= \App\Support\Tenant::current();
+
+        if ($this->is_super_admin) {
+            return true;
+        }
+
         $role = $this->roleIn($organization);
+
+        if ($role?->hasFullAccess() || $this->isOrganizationOwner($organization)) {
+            return true;
+        }
+
+        $membership = $this->membershipIn($organization);
+
+        if (! $membership) {
+            return false;
+        }
+
+        $custom = is_array($membership->permissions) ? $membership->permissions : [];
+        $grants = $custom['grants'] ?? [];
+        $revokes = $custom['revokes'] ?? [];
+
+        if (in_array($permission, $revokes, true)) {
+            return false;
+        }
+
+        if (in_array($permission, $grants, true)) {
+            return true;
+        }
 
         return $role?->can($permission) ?? false;
     }

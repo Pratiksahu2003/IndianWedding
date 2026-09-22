@@ -62,12 +62,12 @@
                 </select>
                 <button class="rounded-full bg-[#16120f] px-3 py-2 text-xs text-white">Assign</button>
             </form>
-            <ul class="mt-4 space-y-2 text-sm">@foreach ($project->team as $member)<li>{{ $member->user?->name }} · {{ $member->role->label() }}</li>@endforeach</ul>
+            <ul class="mt-4 space-y-2 text-sm">@foreach ($teamMembers as $member)<li>{{ $member->user?->name }} · {{ $member->role instanceof \App\Enums\Role ? $member->role->label() : $member->role }}</li>@endforeach</ul>
         </section>
         <section class="rounded-3xl bg-white p-6">
             <h2 class="text-xs uppercase tracking-[0.2em] opacity-50">Payments</h2>
             <ul class="mt-4 space-y-3 text-sm">
-                @foreach ($project->paymentMilestones as $m)
+                @foreach ($milestones as $m)
                     <li class="flex items-center justify-between rounded-2xl bg-[#f6f1ea] p-3">
                         <div>{{ $m->name }} · {{ $m->percentage }}% · {{ \App\Support\Money::format($m->amount) }}<div class="text-xs opacity-50">{{ $m->status->value }}</div></div>
                         @if ($m->remaining() > 0)<button wire:click="recordMilestonePayment({{ $m->id }})" class="text-xs">Record paid</button>@endif
@@ -98,7 +98,7 @@
             <button class="rounded-full bg-[#16120f] px-4 py-2 text-sm text-white">Upload</button>
             <div wire:loading wire:target="upload">Uploading…</div>
         </form>
-        <ul class="mt-4 space-y-2 text-sm">@foreach ($project->files as $file)<li><a href="{{ route('files.show', $file) }}">{{ $file->original_name }}</a> · {{ $file->kind->value }}</li>@endforeach</ul>
+        <ul class="mt-4 space-y-2 text-sm">@foreach ($projectFiles as $file)<li><a href="{{ route('files.show', $file) }}">{{ $file->original_name }}</a> · {{ $file->kind->value }}</li>@endforeach</ul>
         <button wire:click="releaseGallery" class="mt-4 rounded-full border px-4 py-2 text-sm">Release gallery</button>
         @if ($project->gallery)
             <p class="mt-2 text-xs opacity-50">Gallery {{ $project->gallery->is_released ? 'released' : 'draft' }}</p>
@@ -108,6 +108,6 @@
     <section class="rounded-3xl bg-white p-6">
         <h2 class="text-xs uppercase tracking-[0.2em] opacity-50">Tasks</h2>
         <form wire:submit="addTask" class="mt-3 flex gap-2"><input wire:model="task_title" class="flex-1 rounded-2xl bg-[#f6f1ea] px-3 py-2 text-sm"><button class="rounded-full bg-[#16120f] px-4 text-sm text-white">Add</button></form>
-        <ul class="mt-3 text-sm">@foreach ($project->tasks as $task)<li>{{ $task->title }} · {{ $task->status->value }}</li>@endforeach</ul>
+        <ul class="mt-3 text-sm">@foreach ($projectTasks as $task)<li>{{ $task->title }} · {{ $task->status->value }}</li>@endforeach</ul>
     </section>
 </div>
