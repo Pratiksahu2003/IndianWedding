@@ -23,6 +23,10 @@
             'logo' => studio_logo(),
             'areaServed' => 'India',
         ];
+        $socialUrls = array_column(social_links(), 'url');
+        if ($socialUrls !== []) {
+            $schema['sameAs'] = $socialUrls;
+        }
     @endphp
     <script type="application/ld+json">{!! json_encode($schema, JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE) !!}</script>
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -43,29 +47,44 @@
             ['/testimonials', site('nav.testimonials', 'Feedbacks'), request()->is('testimonials')],
             ['/contact', site('nav.contact', 'Contact'), request()->is('contact')],
         ];
+        $loginActive = request()->routeIs('login', 'password.*');
+        $loginHref = route('login');
+        $loginLabel = site('nav.login', 'Login');
+        if (auth()->check()) {
+            $loginOrg = $organization ?? \App\Models\Organization::query()->where('is_active', true)->first();
+            $loginRole = $loginOrg ? auth()->user()->roleIn($loginOrg) : null;
+            $loginHref = route($loginRole?->dashboardRoute() ?? 'app.dashboard');
+            $loginLabel = site('nav.dashboard', 'Dashboard');
+            $loginActive = request()->routeIs('app.*', 'client.*');
+        }
     @endphp
     <header x-data="{ open: false }" class="fixed inset-x-0 top-0 z-40 bg-[#0c0b0a]/95 text-white shadow-[0_10px_40px_rgba(0,0,0,0.35)] backdrop-blur-xl">
-        <div class="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 md:px-6">
+        <div class="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-4 py-3 sm:px-5 md:px-6">
             <a href="/" class="inline-flex shrink-0 items-center">
-                <x-brand-logo class="h-9 max-w-[168px] lg:h-10 lg:max-w-[196px]" />
+                <x-brand-logo class="h-8 max-w-[140px] sm:h-9 sm:max-w-[168px] 2xl:h-10 2xl:max-w-[196px]" />
             </a>
-            <nav class="hidden min-w-0 flex-1 items-center justify-end gap-0.5 text-[11px] font-medium tracking-wide whitespace-nowrap md:flex lg:gap-1 lg:text-[13px]">
+            <nav class="hidden shrink-0 items-center justify-end gap-0.5 text-[12px] font-medium tracking-wide 2xl:flex 2xl:gap-1 2xl:text-[13px]" aria-label="Main">
                 @foreach ($navLinks as [$href, $label, $active])
-                    <a href="{{ $href }}" class="rounded-full px-2 py-1.5 transition lg:px-3 lg:py-2 {{ $active ? 'bg-white/10 text-[#e2c48a]' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">{{ $label }}</a>
+                    <a href="{{ $href }}" class="rounded-full px-2.5 py-1.5 transition 2xl:px-3 2xl:py-2 {{ $active ? 'bg-white/10 text-[#e2c48a]' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">{{ $label }}</a>
                 @endforeach
-                <a href="/book-consultation" class="ml-1 shrink-0 rounded-full bg-[#c4a574] px-3 py-1.5 text-[#16120f] shadow-sm transition hover:bg-[#d4b888] lg:ml-2 lg:px-4 lg:py-2">{{ site('nav.reservation', 'Make Reservation') }}</a>
+                <a href="{{ $loginHref }}" class="ml-1 shrink-0 rounded-full border border-white/20 px-3 py-1.5 transition 2xl:ml-2 2xl:px-3 2xl:py-2 {{ $loginActive ? 'bg-white/10 text-[#e2c48a]' : 'text-white/80 hover:bg-white/5 hover:text-white' }}">{{ $loginLabel }}</a>
+                <a href="/book-consultation" class="ml-1 shrink-0 rounded-full bg-[#c4a574] px-3 py-1.5 text-[#16120f] shadow-sm transition hover:bg-[#d4b888] 2xl:ml-1 2xl:px-4 2xl:py-2">{{ site('nav.reservation', 'Make Reservation') }}</a>
             </nav>
-            <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white md:hidden" @click="open=!open" :aria-expanded="open" aria-label="Open menu">
+            <div class="flex shrink-0 items-center gap-2 2xl:hidden">
+                <a href="{{ $loginHref }}" class="inline-flex h-10 items-center rounded-full border border-white/20 px-3.5 text-xs font-medium text-white/85 transition hover:bg-white/5 hover:text-white sm:px-4 sm:text-sm {{ $loginActive ? 'bg-white/10 text-[#e2c48a]' : '' }}">{{ $loginLabel }}</a>
+                <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-white" @click="open=!open" :aria-expanded="open" :aria-label="open ? 'Close menu' : 'Open menu'">
                 <svg x-show="!open" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
                 <svg x-show="open" x-cloak class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 6l12 12M18 6 6 18"/></svg>
-            </button>
+                </button>
+            </div>
         </div>
-        <div x-show="open" x-cloak x-transition class="border-t border-white/10 bg-[#0c0b0a] px-5 py-4 md:hidden">
+        <div x-show="open" x-cloak x-transition class="border-t border-white/10 bg-[#0c0b0a] px-5 py-4 2xl:hidden">
             <div class="flex flex-col gap-1 text-sm">
                 @foreach ($navLinks as [$href, $label, $active])
                     <a href="{{ $href }}" class="rounded-xl px-3 py-2.5 {{ $active ? 'bg-white/10 text-[#e2c48a]' : 'text-white/80' }}">{{ $label }}</a>
                 @endforeach
                 <a href="/faq" class="rounded-xl px-3 py-2.5 text-white/80">{{ site('nav.faq', 'FAQ') }}</a>
+                <a href="{{ $loginHref }}" class="rounded-xl px-3 py-2.5 {{ $loginActive ? 'bg-white/10 text-[#e2c48a]' : 'text-white/80' }}">{{ $loginLabel }}</a>
                 <a href="/book-consultation" class="mt-2 rounded-full bg-[#c4a574] px-4 py-3 text-center font-medium text-[#16120f]">{{ site('nav.reservation', 'Make Reservation') }}</a>
             </div>
         </div>
@@ -81,6 +100,7 @@
                     <x-brand-logo class="h-14 max-w-[260px]" />
                 </a>
                 <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/60">{{ site('footer.blurb') }}</p>
+                <x-social-links class="mt-6" />
                 <a href="/book-consultation" class="mt-6 inline-flex rounded-full bg-[#c4a574] px-5 py-2.5 text-sm font-medium text-[#16120f] transition hover:bg-[#d4b888]">{{ site('nav.reservation', 'Make Reservation') }}</a>
             </div>
             <div class="md:col-span-3">
@@ -98,17 +118,24 @@
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c4a574]">{{ site('footer.contact_heading', 'Contact Info') }}</p>
                 <div class="mt-4 space-y-3 text-sm leading-relaxed text-white/70">
                     <p>{{ site('contact.phone') }}</p>
-                    <p>{{ site('contact.emails') }}</p>
-                    <p>{{ site('contact.office') }}</p>
+                    <x-contact-emails />
+                    <p class="whitespace-pre-line">{{ site('contact.office') }}</p>
                 </div>
             </div>
         </div>
         <div class="border-t border-white/10">
-            <div class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-5 text-xs text-white/40 md:flex-row md:items-center md:justify-between md:px-8">
+            <div class="mx-auto flex max-w-6xl flex-col gap-3 px-5 py-5 text-xs text-white/40 md:flex-row md:items-center md:justify-between md:px-8">
                 <p>{{ site('footer.copyright') }}</p>
+                <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <a href="/terms-and-conditions" class="transition hover:text-white/70">Terms</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="/privacy-policy" class="transition hover:text-white/70">Privacy</a>
+                    <span aria-hidden="true">·</span>
+                    <a href="/cookie-policy" class="transition hover:text-white/70">Cookies</a>
+                </p>
                 <p>
                     Designed and Developed by
-                    <a href="https://www.vedmint.com" target="_blank" rel="noopener noreferrer" class="text-[#c4a574] transition hover:text-[#e2c48a]">VedMint Consultancy Service</a>
+                    <a href="https://www.vedmint.com" target="_blank" rel="noopener noreferrer" class="text-[#c4a574] transition hover:text-[#e2c48a]">VedMint Consultancy Services</a>
                 </p>
             </div>
         </div>

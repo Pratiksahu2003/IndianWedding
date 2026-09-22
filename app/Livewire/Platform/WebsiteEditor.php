@@ -10,6 +10,7 @@ use App\Models\SiteContent;
 use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\SiteCopy;
+use App\Support\SocialPlatforms;
 use App\Support\Tenant;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -19,7 +20,11 @@ use Livewire\Component;
 #[Title('Website content')]
 class WebsiteEditor extends Component
 {
-    public string $tab = 'copy';
+    /** Main CMS section: content, social, team, testimonials, portfolio, faq */
+    public string $menu = 'content';
+
+    /** Sub-section when menu is content (site content group key) */
+    public string $copyGroup = 'home';
 
     /** @var array<string, string> */
     public array $fields = [];
@@ -38,7 +43,16 @@ class WebsiteEditor extends Component
     public function mount(): void
     {
         abort_unless(auth()->user()?->canInOrganization('settings.manage', Tenant::current()), 403);
+        SocialPlatforms::syncForOrganization($this->organization());
         $this->loadFields();
+    }
+
+    public function selectMenu(string $menu, ?string $copyGroup = null): void
+    {
+        $this->menu = $menu;
+        if ($menu === 'content' && $copyGroup !== null) {
+            $this->copyGroup = $copyGroup;
+        }
     }
 
     public function loadFields(): void
@@ -56,12 +70,49 @@ class WebsiteEditor extends Component
     {
         $org = $this->organization();
         foreach ($this->fields as $key => $value) {
+            if (str_starts_with((string) $key, 'social.')) {
+                continue;
+            }
             SiteContent::withoutTenant()->where('organization_id', $org->id)->where('key', $key)->update([
                 'value' => $value,
             ]);
         }
         SiteCopy::forget($org->id);
         session()->flash('status', 'Website copy saved. The public site now shows your words.');
+    }
+
+    public function saveSocial(): void
+    {
+        $org = $this->organization();
+        $rules = [];
+        foreach (SocialPlatforms::definitions() as $def) {
+            $rules['fields.'.$def['key']] = ['nullable', 'string', 'max:500'];
+        }
+        $this->validate($rules);
+
+        foreach (SocialPlatforms::definitions() as $def) {
+            $raw = trim($this->fieldValue($def['key']));
+            $normalized = $raw === '' ? '' : SocialPlatforms::normalizeUrl($raw, $def['id']);
+            if ($raw !== '' && $normalized === '') {
+                $this->addError('fields.'.$def['key'], 'Enter a valid URL or phone number for '.$def['label'].'.');
+            }
+        }
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+
+        foreach (SocialPlatforms::definitions() as $def) {
+            $raw = trim($this->fieldValue($def['key']));
+            $value = $raw === '' ? '' : SocialPlatforms::normalizeUrl($raw, $def['id']);
+            SiteContent::withoutTenant()->where('organization_id', $org->id)->where('key', $def['key'])->update([
+                'value' => $value,
+            ]);
+            $this->fields[$def['key']] = $value;
+        }
+
+        SiteCopy::forget($org->id);
+        session()->flash('status', 'Social media links saved. Icons appear on the public site when a link is set.');
     }
 
     public function addTeamMember(): void
@@ -150,11 +201,17 @@ class WebsiteEditor extends Component
             ->where('organization_id', $org->id)
             ->orderBy('sort_order')
             ->get()
-            ->reject(fn ($row) => str_starts_with((string) $row->key, 'home.instagram'))
+            ->reject(fn ($row) => str_starts_with((string) $row->key, 'home.instagram')
+                || str_starts_with((string) $row->key, 'social.'))
             ->groupBy('group');
+
+        $activeCopyRows = $groups->get($this->copyGroup, collect());
 
         return view('livewire.platform.website-editor', [
             'groups' => $groups,
+            'activeCopyRows' => $activeCopyRows,
+            'cmsMenu' => \App\Support\WebsiteCmsMenu::tree(),
+            'copyGroupLabel' => \App\Support\WebsiteCmsMenu::copyGroupLabel($this->copyGroup),
             'team' => TeamMember::query()->orderBy('sort_order')->get(),
             'testimonials' => Testimonial::query()->latest()->get(),
             'faqs' => Faq::query()->orderBy('sort_order')->get(),
@@ -167,5 +224,14 @@ class WebsiteEditor extends Component
     {
         return Tenant::current()
             ?? Organization::query()->where('is_active', true)->firstOrFail();
+    }
+
+    protected function fieldValue(string $key): string
+    {
+        if (array_key_exists($key, $this->fields)) {
+            return (string) $this->fields[$key];
+        }
+
+        return (string) data_get($this->fields, $key, '');
     }
 }

@@ -12,7 +12,7 @@
             <option value="">Package</option>
             @foreach ($packages as $package)<option value="{{ $package->id }}">{{ $package->name }}</option>@endforeach
         </select>
-        <textarea wire:model="notes" class="rounded-2xl bg-[#f6f1ea] px-4 py-3" placeholder="Notes"></textarea>
+        <x-studio.rich-textarea model="notes" placeholder="Notes" :rows="4" />
         @error('name') <p class="text-sm text-rose-700">{{ $message }}</p> @enderror
         <button class="rounded-full bg-[#16120f] py-3 text-white" wire:loading.attr="disabled">Save lead</button>
     </form>

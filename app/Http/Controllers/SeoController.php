@@ -25,7 +25,7 @@ class SeoController extends Controller
     public function sitemap(): Response
     {
         $org = \App\Models\Organization::query()->where('is_active', true)->first();
-        $paths = ['/', '/about', '/our-team', '/services', '/packages', '/portfolio', '/gallery', '/testimonials', '/faq', '/contact', '/book-consultation'];
+        $paths = ['/', '/about', '/our-team', '/services', '/packages', '/portfolio', '/gallery', '/testimonials', '/faq', '/contact', '/book-consultation', '/terms-and-conditions', '/privacy-policy', '/cookie-policy'];
         if ($org) {
             $paths = array_merge(
                 $paths,

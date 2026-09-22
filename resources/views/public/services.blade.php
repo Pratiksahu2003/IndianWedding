@@ -3,7 +3,7 @@
 <section class="mx-auto max-w-6xl px-6 py-20">
     <p class="text-sm uppercase tracking-[0.25em] text-[#9b7b4b]">{{ site('services.eyebrow') }}</p>
     <h1 class="mt-4 font-[Cormorant_Garamond] text-5xl">{{ site('services.heading') }}</h1>
-    <p class="mt-6 max-w-3xl text-lg leading-relaxed text-[#16120f]/75">{{ site('services.intro') }}</p>
+    <div class="cms-rich mt-6 max-w-3xl text-lg leading-relaxed text-[#16120f]/75">{!! site_rich('services.intro') !!}</div>
     <p class="mt-8 text-sm uppercase tracking-[0.2em] opacity-50">{{ site('services.featured_date') }}</p>
     <p class="mt-3 max-w-3xl text-sm opacity-70">{{ site('services.featured_blurb') }}</p>
     <div class="mt-12 grid gap-6 md:grid-cols-2">

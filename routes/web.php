@@ -23,7 +23,6 @@ use App\Livewire\Studio\Clients\Index as ClientsIndex;
 use App\Livewire\Studio\Consultations\Index as ConsultationsIndex;
 use App\Livewire\Studio\Dashboard as StudioDashboard;
 use App\Livewire\Studio\Files\Index as FilesIndex;
-use App\Livewire\Studio\Galleries\Index as GalleriesIndex;
 use App\Livewire\Studio\Invoices\Index as InvoicesIndex;
 use App\Livewire\Studio\Leads\Form as LeadForm;
 use App\Livewire\Studio\Leads\Index as LeadsIndex;
@@ -53,7 +52,7 @@ Route::get('/packages/{slug}', [WebsiteController::class, 'service'])->name('pub
 Route::get('/projects/{slug}', [WebsiteController::class, 'project'])->name('public.projects.show');
 Route::get('/portfolio/{slug}', [WebsiteController::class, 'project'])->name('public.portfolio.show');
 Route::get('/{page}', [WebsiteController::class, 'page'])
-    ->whereIn('page', ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team']);
+    ->whereIn('page', ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy']);
 
 Route::post('/inquiry', [InquiryController::class, 'store'])
     ->middleware('throttle:8,1')
@@ -64,6 +63,7 @@ Route::post('/consultations', [ConsultationController::class, 'store'])
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::get('/studio/login', [AuthenticatedSessionController::class, 'create'])->name('studio.login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:8,1');
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])->name('password.request');
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])->name('password.email');
@@ -99,7 +99,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/tasks', TasksIndex::class)->name('tasks.index');
         Route::get('/payments', PaymentsIndex::class)->name('payments.index');
         Route::get('/invoices', InvoicesIndex::class)->name('invoices.index');
-        Route::get('/galleries', GalleriesIndex::class)->name('galleries.index');
+        Route::redirect('/galleries', '/app/projects');
         Route::get('/files', FilesIndex::class)->name('files.index');
         Route::get('/messages', MessagesIndex::class)->name('messages.index');
         Route::get('/reports', ReportsIndex::class)->name('reports.index');

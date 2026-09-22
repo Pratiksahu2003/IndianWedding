@@ -14,7 +14,7 @@
 <div class="mt-4 grid gap-3">
 <input wire:model="name" placeholder="Name" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
 <input type="number" wire:model="price" placeholder="Price in rupees" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
-<textarea wire:model="description" class="rounded-2xl bg-[#f6f1ea] px-4 py-3"></textarea>
+<x-studio.rich-textarea model="description" :rows="5" />
 <button class="rounded-full bg-[#16120f] py-3 text-white">Create</button>
 </div>
 </form>

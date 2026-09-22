@@ -6,7 +6,7 @@
     <div class="mt-10 grid gap-6 md:grid-cols-2">
         @foreach ($testimonials as $item)
             <blockquote class="rounded-[28px] bg-white p-8">
-                <p class="font-[Cormorant_Garamond] text-2xl">“{{ $item->quote }}”</p>
+                <div class="cms-rich font-[Cormorant_Garamond] text-2xl">“{!! rich_html($item->quote) !!}”</div>
                 <footer class="mt-4 text-sm opacity-70">{{ $item->author }} · {{ $item->role }}</footer>
             </blockquote>
         @endforeach

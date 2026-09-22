@@ -7,10 +7,10 @@
     <title>{{ $title ?? 'Studio' }} · Unik Studio</title>
     @include('partials.brand-head')
     <link href="https://fonts.bunny.net/css?family=cormorant-garamond:600,700|outfit:400,500,600" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/studio.js'])
     @livewireStyles
 </head>
-<body class="min-h-screen bg-[#f4eee6] font-[Outfit] text-[#16120f] antialiased" x-data="{ sidebar: false, userMenu: false }" @keydown.escape.window="sidebar=false; userMenu=false">
+<body class="h-screen overflow-hidden bg-[#f4eee6] font-[Outfit] text-[#16120f] antialiased" x-data="{ sidebar: false, userMenu: false }" @keydown.escape.window="sidebar=false; userMenu=false">
 @php
     $user = auth()->user();
     $role = $user?->roleIn(\App\Support\Tenant::current());
@@ -37,7 +37,6 @@
             ['app.invoices.index', 'Invoices', 'invoices', 'app.invoices.*'],
         ],
         'Delivery' => [
-            ['app.galleries.index', 'Galleries', 'gallery', 'app.galleries.*'],
             ['app.files.index', 'Files', 'files', 'app.files.*'],
             ['app.messages.index', 'Messages', 'messages', 'app.messages.*'],
         ],
@@ -51,14 +50,14 @@
     ];
 @endphp
 
-<div class="flex min-h-screen">
+<div class="flex h-full min-h-0">
     <div x-show="sidebar" x-cloak class="fixed inset-0 z-40 bg-[#16120f]/50 md:hidden" @click="sidebar=false"></div>
 
     <aside
-        class="fixed inset-y-0 left-0 z-50 flex w-[272px] flex-col border-r border-white/5 bg-[#14110e] text-[#f6f1ea] transition-transform duration-200 md:static md:translate-x-0"
+        class="fixed inset-y-0 left-0 z-50 flex h-full max-h-screen w-[272px] flex-col overflow-hidden border-r border-white/5 bg-[#14110e] text-[#f6f1ea] transition-transform duration-200 md:static md:shrink-0 md:translate-x-0"
         :class="sidebar ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
     >
-        <div class="flex items-center justify-between px-5 py-5">
+        <div class="flex shrink-0 items-center justify-between px-5 py-5">
             <a href="{{ route('app.dashboard') }}" class="block min-w-0">
                 <x-brand-logo class="h-11 max-w-[180px]" />
             </a>
@@ -67,7 +66,7 @@
             </button>
         </div>
 
-        <nav class="studio-scroll flex-1 space-y-5 overflow-y-auto px-3 pb-6">
+        <nav class="studio-scroll min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 pb-4">
             @foreach ($nav as $group => $links)
                 <div>
                     <p class="px-3 pb-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/35">{{ $group }}</p>
@@ -89,7 +88,7 @@
             @endforeach
         </nav>
 
-        <div class="border-t border-white/10 p-3">
+        <div class="shrink-0 border-t border-white/10 bg-[#14110e] p-3">
             <div class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
                 <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#c4a574] text-sm font-semibold text-[#16120f]">{{ $initials }}</div>
                 <div class="min-w-0 flex-1">
@@ -106,8 +105,8 @@
         </div>
     </aside>
 
-    <div class="flex min-w-0 flex-1 flex-col">
-        <header class="sticky top-0 z-30 flex items-center gap-3 border-b border-[#16120f]/8 bg-[#f4eee6]/90 px-4 py-3 backdrop-blur-xl md:px-8">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain">
+        <header class="sticky top-0 z-30 flex shrink-0 items-center gap-3 border-b border-[#16120f]/8 bg-[#f4eee6]/90 px-4 py-3 backdrop-blur-xl md:px-8">
             <button type="button" class="rounded-xl bg-white p-2 shadow-sm md:hidden" @click="sidebar=true" aria-label="Open menu">
                 <x-studio.icon name="menu" />
             </button>

@@ -1,10 +1,17 @@
 @extends('layouts.guest')
-@section('heading', 'Welcome back')
-@section('subheading', 'Sign in to continue your Unik Studio bookings, galleries and projects.')
+@php
+    $portal = $portal ?? 'client';
+    $isStudio = $portal === 'studio';
+@endphp
+@section('heading', $isStudio ? 'Studio admin sign in' : 'Client sign in')
+@section('subheading', $isStudio
+    ? 'Access your studio dashboard — leads, projects, galleries, billing and website content.'
+    : 'Sign in to view your gallery, timeline, payments and project updates.')
 
 @section('content')
 <form method="POST" action="{{ route('login') }}" class="space-y-4" x-data="{ showPassword: false }">
     @csrf
+    <input type="hidden" name="portal" value="{{ $portal }}">
     @if (session('status'))
         <p class="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</p>
     @endif
@@ -21,7 +28,7 @@
                 name="email"
                 value="{{ old('email') }}"
                 autocomplete="email"
-                placeholder="you@example.com"
+                placeholder="{{ $isStudio ? 'admin@yourstudio.com' : 'you@example.com' }}"
                 class="w-full rounded-xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-[#0f2744] outline-none ring-[#c4a574]/40 placeholder:text-slate-400 focus:border-[#c4a574] focus:ring-4"
                 required
                 autofocus
@@ -67,18 +74,23 @@
     </div>
 
     <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#c4a574] py-3 text-sm font-semibold text-[#16120f] shadow-sm transition hover:bg-[#b89462]">
-        Sign in
+        {{ $isStudio ? 'Sign in to studio' : 'Sign in' }}
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
 </form>
 
 <div class="relative my-8 text-center text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-    <span class="relative z-10 bg-white px-3">or continue with</span>
+    <span class="relative z-10 bg-white px-3">{{ $isStudio ? 'Not studio staff?' : 'Studio team?' }}</span>
     <span class="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-slate-200"></span>
 </div>
 
-<a href="{{ route('password.request') }}" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-medium text-[#0f2744] transition hover:border-[#c4a574] hover:bg-[#f6f1ea]">
-    <svg class="h-[18px] w-[18px] text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16v12H4z"/><path d="M4 7l8 6 8-6"/></svg>
-    Reset via email
-</a>
+@if ($isStudio)
+    <a href="{{ route('login') }}" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-medium text-[#0f2744] transition hover:border-[#c4a574] hover:bg-[#f6f1ea]">
+        Client gallery login
+    </a>
+@else
+    <a href="{{ route('studio.login') }}" class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#16120f]/15 bg-[#16120f] py-3 text-sm font-medium text-white transition hover:bg-[#2a241f]">
+        Studio admin login
+    </a>
+@endif
 @endsection

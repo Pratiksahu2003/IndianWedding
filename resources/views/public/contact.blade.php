@@ -9,7 +9,7 @@
         </article>
         <article class="rounded-[28px] bg-white p-8">
             <h2 class="text-xs uppercase tracking-[0.2em] opacity-50">{{ site('contact.email_label') }}</h2>
-            <p class="mt-3 whitespace-pre-line">{{ site('contact.emails') }}</p>
+            <x-contact-emails class="mt-3" link-class="text-[#9b7b4b] hover:text-[#16120f]" />
         </article>
         <article class="rounded-[28px] bg-white p-8">
             <h2 class="text-xs uppercase tracking-[0.2em] opacity-50">{{ site('contact.phone_label') }}</h2>
@@ -18,8 +18,9 @@
         </article>
     </div>
     <div class="mt-12 rounded-[28px] bg-white p-8">
-        <h2 class="font-[Cormorant_Garamond] text-3xl">{{ site('contact.subscribe_heading') }}</h2>
-        <p class="mt-2 text-sm opacity-70">{{ site('contact.subscribe_note') }}</p>
+        <h2 class="font-[Cormorant_Garamond] text-3xl">Follow us</h2>
+        <p class="mt-2 text-sm text-[#16120f]/70">Connect with {{ site('brand.name', 'Unik Studio') }} on social media for latest work and updates.</p>
+        <x-social-links class="mt-5" theme="light" />
     </div>
     <div class="mt-12 max-w-3xl">
         @include('public.partials.inquiry-form')

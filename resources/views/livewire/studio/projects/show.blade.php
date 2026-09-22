@@ -20,7 +20,7 @@
             <div class="rounded-2xl bg-[#f6f1ea] p-4"><p class="text-xs uppercase tracking-[0.2em] opacity-50">Balance</p><p class="mt-1 text-xl">{{ \App\Support\Money::format($project->balance()) }}</p></div>
         </div>
         @if ($project->notes)
-            <p class="mt-6 text-sm leading-relaxed opacity-70">{{ $project->notes }}</p>
+            <div class="cms-rich mt-6 text-sm leading-relaxed opacity-70">{!! rich_html($project->notes) !!}</div>
         @endif
     </div>
 

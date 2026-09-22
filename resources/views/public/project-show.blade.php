@@ -7,7 +7,7 @@
         <div class="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-6 pb-14 text-white">
             <a href="/portfolio" class="text-sm text-white/70">← All projects</a>
             <p class="mt-4 text-sm uppercase tracking-[0.3em] text-[#c4a574]">{{ $item->category ?: 'Portfolio' }}{{ $item->location ? ' · '.$item->location : '' }}</p>
-            <h1 class="mt-3 max-w-4xl font-[Cormorant_Garamond] text-5xl italic md:text-7xl">{{ $item->title }}</h1>
+            <h1 class="mt-3 max-w-4xl font-[Cormorant_Garamond] text-4xl italic text-balance sm:text-5xl md:text-6xl xl:text-7xl">{{ $item->title }}</h1>
             @if ($item->couple)
                 <p class="mt-4 text-lg text-white/80">{{ $item->couple }}</p>
             @endif

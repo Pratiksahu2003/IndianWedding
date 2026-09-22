@@ -12,6 +12,7 @@ use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\SiteCopy;
 use App\Support\Tenant;
+use App\Support\UnikStudioAssets;
 use Illuminate\Database\Seeder;
 
 class UnikStudioContentSeeder extends Seeder
@@ -100,32 +101,18 @@ class UnikStudioContentSeeder extends Seeder
             ]);
         }
 
-        $images = [
-            ['Pre-Wedding', 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=80', 'pre-wedding', 'Anjali & Abhay', 'A golden-hour pre-wedding in Delhi. Unik Studio followed the couple through quiet streets and open light, building a love story before the pheras.'],
-            ['Wedding day', 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1400&q=80', 'wedding', 'Vivaah', 'Every ritual, every glance, every family embrace — photographed as a film still so the wedding day never thins with time.'],
-            ['Candid', 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1400&q=80', 'candid', 'Holding Hands', 'Unposed frames of laughter and nerves. Candid photography that lets people be themselves while we stay almost invisible.'],
-            ['Portrait', 'https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1400&q=80', 'wedding', 'Anjel~i', 'Bridal portraiture with soft light and editorial pacing. Glowing with happiness, framed for the album and the wall.'],
-            ['Couple', 'https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1400&q=80', 'pre-wedding', 'Forever', 'Hands, vows in the making, and a promise photographed like cinema.'],
-            ['Ceremony', 'https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=1400&q=80', 'wedding', 'Sacred fire', 'Mandap coverage with two photographers so rituals and family reactions are never missed.'],
-            ['Love story', 'https://images.unsplash.com/photo-1529634597493-8c3742325d48?auto=format&fit=crop&w=1400&q=80', 'pre-wedding', 'New Romantic Love Story', 'A coming-soon chapter from Unik Studio — cinematic stills for couples who want movie language on their walls.'],
-            ['Reception', 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1400&q=80', 'wedding', 'Beautiful Day', 'Dance floor, speeches, and late light. Reception photography that keeps the energy of the night.'],
-            ['Details', 'https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&w=1400&q=80', 'wedding', 'The little things', 'Rings, florals, invitations and heirloom jewellery photographed as part of the story, not as a checklist.'],
-            ['Film still', 'https://images.unsplash.com/photo-1522673607200-164e1b6ac4d5?auto=format&fit=crop&w=1400&q=80', 'cinematography', 'Cinematic Film Shoot', 'Slow motion, motivated camera moves and colour that belongs in a theatre — Unik cinematography.'],
-            ['Candid joy', 'https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1400&q=80', 'candid', 'Joy', 'Children, elders, stolen jokes. The wedding as it actually felt.'],
-            ['Destination', 'https://images.unsplash.com/photo-1544078751-58fee2d8a03b?auto=format&fit=crop&w=1400&q=80', 'pre-wedding', 'Get Lost', 'Let’s find some beautiful place to get lost — destination frames for couples who travel to say yes.'],
-        ];
         PortfolioItem::withoutTenant()->where('organization_id', $org->id)->delete();
-        foreach ($images as $i => [$title, $url, $cat, $couple, $story]) {
+        foreach (UnikStudioAssets::portfolioCatalog() as $i => $row) {
             PortfolioItem::query()->create([
                 'organization_id' => $org->id,
-                'title' => $title,
-                'slug' => \Illuminate\Support\Str::slug($title).'-'.($i + 1),
+                'title' => $row['title'],
+                'slug' => \Illuminate\Support\Str::slug($row['title']).'-'.($i + 1),
                 'location' => 'New Delhi',
-                'couple' => $couple,
-                'story' => $story,
-                'event_date' => now()->subMonths(12 - $i)->toDateString(),
-                'image_path' => $url,
-                'category' => $cat,
+                'couple' => $row['couple'],
+                'story' => $row['story'],
+                'event_date' => now()->subMonths(max(1, 20 - $i))->toDateString(),
+                'image_path' => UnikStudioAssets::url($row['file']),
+                'category' => $row['category'],
                 'is_published' => true,
                 'sort_order' => $i,
             ]);
@@ -136,13 +123,14 @@ class UnikStudioContentSeeder extends Seeder
             ->whereIn('slug', ['heritage', 'cinematic'])
             ->update(['is_public' => false, 'is_active' => false]);
 
+        $serviceCovers = UnikStudioAssets::serviceCovers();
         $services = [
-            ['Wedding Photography', 'wedding-photography', 'We capture every candid smile, emotion and magical moment of your wedding day. Your wedding day is the beginning of a new journey, and we make sure no moment goes unnoticed. Our wedding photography captures the beauty, emotions, and traditions of your big day in timeless frames that you’ll cherish forever.', "Unik Studio has photographed weddings across Delhi and India for more than a decade.\n\nWe cover the pheras, the baraat, the quiet getting-ready hours and the last dance with a documentary eye and a cinematic frame. Two photographers when the family is large, one lead when the day is intimate.\n\nYou receive a curated gallery, an heirloom album option, and files that still look true ten years from now.\n\nBook a date, tell us the rituals that matter, and we build a shot list around your people — not a template.", 'https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?auto=format&fit=crop&w=1800&q=80', 27500000],
-            ['Cinematography', 'cinematography', 'Cinematic storytelling with slow motion, creative shots and movie-style edits. We bring your story to life with cinematic flair. Using advanced cameras, creative direction, and artistic editing, our cinematography transforms your special occasions into films that look straight out of a movie.', "Every Unik film is written in pictures first: a teaser, a highlight, and a longer family cut when you want it.\n\nWe shoot on cinema cameras with slow motion, motivated lighting and sound that keeps vows audible.\n\nColour, music and pacing are directed so the film feels like a memory, not a recap.\n\nShare your favourite songs and references — we will not drop a stock montage over your wedding.", 'https://images.unsplash.com/photo-1522673607200-164e1b6ac4d5?auto=format&fit=crop&w=1800&q=80', 42500000],
-            ['Candid Shoot', 'candid-shoot', 'Natural, unposed moments filled with joy, laughter and real emotions. True beauty lies in unscripted moments. Our candid photography style captures raw emotions—smiles, tears, and laughter—without you even realizing the camera is there.', "Candid for us means no stiff posing, no stopping the baraat for a lineup unless you ask.\n\nWe work close and quiet, reading rooms, catching glances between rituals.\n\nThis is the service families remember — because it looks like the day they actually lived.", 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1800&q=80', 8500000],
-            ['Pre-Wedding Shoot', 'pre-wedding-shoot', 'Romantic locations and creative concepts to tell your love story. Celebrate your love before the big day with a customized pre-wedding shoot. Whether it’s at a romantic outdoor location or a creative studio setup, we create dreamy visuals that narrate your unique love story.', "We scout Delhi and nearby destinations for light, not clichés.\n\nWardrobe, location and time of day are planned with you. The set is small: photographer, sometimes a cinematographer, never a circus.\n\nStills and a short film can travel together so your save-the-date and cinema feel like one story.", 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=80', 12500000],
-            ['Birthday Shoot', 'birthday-shoot', 'Beautifully capturing smiles, fun and unforgettable birthday memories. Birthdays are milestones that deserve to be remembered. We capture every joyful detail of your celebration.', "From first birthdays to milestone decades, we photograph cake, guests and the small chaos that makes a party feel real.\n\nCoverage can be a few hours or a full evening. Albums and reels are optional add-ons.\n\nTell us the theme; we match the light to it.", 'https://images.unsplash.com/photo-1464349095431-e9fe36c12562?auto=format&fit=crop&w=1800&q=80', 5500000],
-            ['Music Video Shoot', 'music-video-shoot', 'Professional cinematic music videos that elevate your creative vision. Every artist deserves visuals that match the power of their music. Our professional music video production combines creativity, storytelling, and cinematic visuals.', "Unik Studio produces music videos with the same cinema kit we take to weddings — and a director’s plan.\n\nTreatment, locations, talent direction and colour are included in production conversations before the first slate.\n\nBring a track and a feeling. We will not deliver a random clip compilation.", 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1800&q=80', 18500000],
+            ['Wedding Photography', 'wedding-photography', 'We capture every candid smile, emotion and magical moment of your wedding day. Your wedding day is the beginning of a new journey, and we make sure no moment goes unnoticed. Our wedding photography captures the beauty, emotions, and traditions of your big day in timeless frames that you’ll cherish forever.', "Unik Studio has photographed weddings across Delhi and India for more than a decade.\n\nWe cover the pheras, the baraat, the quiet getting-ready hours and the last dance with a documentary eye and a cinematic frame. Two photographers when the family is large, one lead when the day is intimate.\n\nYou receive a curated gallery, an heirloom album option, and files that still look true ten years from now.\n\nBook a date, tell us the rituals that matter, and we build a shot list around your people — not a template.", UnikStudioAssets::url($serviceCovers['wedding-photography']), 27500000],
+            ['Cinematography', 'cinematography', 'Cinematic storytelling with slow motion, creative shots and movie-style edits. We bring your story to life with cinematic flair. Using advanced cameras, creative direction, and artistic editing, our cinematography transforms your special occasions into films that look straight out of a movie.', "Every Unik film is written in pictures first: a teaser, a highlight, and a longer family cut when you want it.\n\nWe shoot on cinema cameras with slow motion, motivated lighting and sound that keeps vows audible.\n\nColour, music and pacing are directed so the film feels like a memory, not a recap.\n\nShare your favourite songs and references — we will not drop a stock montage over your wedding.", UnikStudioAssets::url($serviceCovers['cinematography']), 42500000],
+            ['Candid Shoot', 'candid-shoot', 'Natural, unposed moments filled with joy, laughter and real emotions. True beauty lies in unscripted moments. Our candid photography style captures raw emotions—smiles, tears, and laughter—without you even realizing the camera is there.', "Candid for us means no stiff posing, no stopping the baraat for a lineup unless you ask.\n\nWe work close and quiet, reading rooms, catching glances between rituals.\n\nThis is the service families remember — because it looks like the day they actually lived.", UnikStudioAssets::url($serviceCovers['candid-shoot']), 8500000],
+            ['Pre-Wedding Shoot', 'pre-wedding-shoot', 'Romantic locations and creative concepts to tell your love story. Celebrate your love before the big day with a customized pre-wedding shoot. Whether it’s at a romantic outdoor location or a creative studio setup, we create dreamy visuals that narrate your unique love story.', "We scout Delhi and nearby destinations for light, not clichés.\n\nWardrobe, location and time of day are planned with you. The set is small: photographer, sometimes a cinematographer, never a circus.\n\nStills and a short film can travel together so your save-the-date and cinema feel like one story.", UnikStudioAssets::url($serviceCovers['pre-wedding-shoot']), 12500000],
+            ['Birthday Shoot', 'birthday-shoot', 'Beautifully capturing smiles, fun and unforgettable birthday memories. Birthdays are milestones that deserve to be remembered. We capture every joyful detail of your celebration.', "From first birthdays to milestone decades, we photograph cake, guests and the small chaos that makes a party feel real.\n\nCoverage can be a few hours or a full evening. Albums and reels are optional add-ons.\n\nTell us the theme; we match the light to it.", UnikStudioAssets::url($serviceCovers['birthday-shoot']), 5500000],
+            ['Music Video Shoot', 'music-video-shoot', 'Professional cinematic music videos that elevate your creative vision. Every artist deserves visuals that match the power of their music. Our professional music video production combines creativity, storytelling, and cinematic visuals.', "Unik Studio produces music videos with the same cinema kit we take to weddings — and a director’s plan.\n\nTreatment, locations, talent direction and colour are included in production conversations before the first slate.\n\nBring a track and a feeling. We will not deliver a random clip compilation.", UnikStudioAssets::url($serviceCovers['music-video-shoot']), 18500000],
         ];
         foreach ($services as $i => [$name, $slug, $desc, $body, $cover, $price]) {
             $package = Package::withoutTenant()->updateOrCreate(
@@ -189,7 +177,10 @@ class UnikStudioContentSeeder extends Seeder
             $i('nav', 'nav.contact', 'Nav: Contact', 'Contact', 'input'),
             $i('nav', 'nav.testimonials', 'Nav: Feedbacks', 'Feedbacks', 'input'),
             $i('nav', 'nav.faq', 'Nav: FAQ', 'FAQ', 'input'),
+            $i('nav', 'nav.login', 'Nav: Login', 'Login', 'input'),
+            $i('nav', 'nav.dashboard', 'Nav: Dashboard (signed in)', 'Dashboard', 'input'),
 
+            $i('home', 'home.hero_image', 'Hero background image URL', UnikStudioAssets::url('hero-slide.png'), 'input'),
             $i('home', 'home.kicker', 'Hero kicker', 'Are getting married! Save the date:'),
             $i('home', 'home.headline', 'Hero headline', 'Capturing Moments, Creating Memories'),
             $i('home', 'home.cta', 'Hero button', 'MAKE RESERVATION', 'input'),
@@ -265,6 +256,20 @@ class UnikStudioContentSeeder extends Seeder
 
             $i('reservation', 'reservation.heading', 'Reservation heading', 'Make Reservation'),
             $i('reservation', 'reservation.body', 'Reservation intro', 'LET US KNOW IF YOU COMING. WE CANT WAIT TO SEE YOU! Book your slot now for best Cinematography & Photography.'),
+
+            $i('social', 'social.instagram', 'Instagram URL', 'https://instagram.com/unik_studioo', 'input'),
+            $i('social', 'social.facebook', 'Facebook URL', '', 'input'),
+            $i('social', 'social.youtube', 'YouTube URL', '', 'input'),
+            $i('social', 'social.whatsapp', 'WhatsApp URL', 'https://wa.me/919818361412', 'input'),
+            $i('social', 'social.x', 'X (Twitter) URL', '', 'input'),
+            $i('social', 'social.linkedin', 'LinkedIn URL', '', 'input'),
+            $i('social', 'social.tiktok', 'TikTok URL', '', 'input'),
+            $i('social', 'social.pinterest', 'Pinterest URL', '', 'input'),
+            $i('social', 'social.threads', 'Threads URL', '', 'input'),
+            $i('social', 'social.snapchat', 'Snapchat URL', '', 'input'),
+            $i('social', 'social.vimeo', 'Vimeo URL', '', 'input'),
+            $i('social', 'social.telegram', 'Telegram URL', '', 'input'),
+            $i('social', 'social.behance', 'Behance URL', '', 'input'),
 
             $i('footer', 'footer.blurb', 'Footer blurb', 'Unik Studio — premium photography and cinematography. Cinematic Film Shoot ✷ Candid Photography ✷ Prewedding ✷ Wedding All Shoot Available.'),
             $i('footer', 'footer.contact_heading', 'Footer contact heading', 'Contact Info'),

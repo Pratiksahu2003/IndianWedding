@@ -2,12 +2,12 @@
 @section('content')
 <article>
     <section class="relative overflow-hidden">
-        <img src="{{ $package->cover_image ?: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=80' }}" alt="{{ $package->name }}" class="h-[70vh] w-full object-cover">
+        <img src="{{ $package->cover_image ?: \App\Support\UnikStudioAssets::url('hero-slide.png') }}" alt="{{ $package->name }}" class="h-[70vh] w-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-[#16120f] via-[#16120f]/40 to-transparent"></div>
         <div class="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-6 pb-14 text-white">
             <a href="/services" class="text-sm text-white/70">← All services</a>
             <p class="mt-4 text-sm uppercase tracking-[0.3em] text-[#c4a574]">{{ site('brand.name', 'Unik Studio') }}</p>
-            <h1 class="mt-3 max-w-4xl font-[Cormorant_Garamond] text-5xl italic md:text-7xl">{{ $package->name }}</h1>
+            <h1 class="mt-3 max-w-4xl font-[Cormorant_Garamond] text-4xl italic text-balance sm:text-5xl md:text-6xl xl:text-7xl">{{ $package->name }}</h1>
         </div>
     </section>
 

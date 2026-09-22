@@ -7,7 +7,7 @@
         @forelse ($packages as $package)
             <article class="rounded-[28px] bg-white p-8">
                 <h2 class="font-[Cormorant_Garamond] text-3xl"><a href="{{ $package->publicUrl() }}">{{ $package->name }}</a></h2>
-                <p class="mt-3 text-sm opacity-70">{{ $package->description }}</p>
+                <div class="cms-rich mt-3 text-sm opacity-70">{!! rich_html($package->description) !!}</div>
                 <p class="mt-4 text-lg">{{ \App\Support\Money::format($package->price) }}</p>
                 <ul class="mt-4 space-y-1 text-sm opacity-80">
                     @foreach ($package->items as $item)

@@ -12,7 +12,7 @@
 <input wire:model="currency" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
 <input wire:model="invoice_prefix" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
 <input wire:model="tax_id" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3">
-<textarea wire:model="milestones_json" rows="8" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3 font-mono text-xs"></textarea>
+<x-studio.rich-textarea model="milestones_json" :rows="8" plain class="font-mono text-xs" />
 <button class="rounded-full bg-[#16120f] px-5 py-3 text-white">Save</button>
 </form>
 </div>

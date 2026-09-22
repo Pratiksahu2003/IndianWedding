@@ -13,12 +13,12 @@
             <button wire:click="convert" wire:confirm="Create a project from this lead?" class="mt-4 rounded-full border border-[#16120f] px-4 py-2 text-sm">Convert to booking</button>
         @endif
         <form wire:submit="addNote" class="mt-8">
-            <textarea wire:model="note" class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3" placeholder="Add a note"></textarea>
+            <x-studio.rich-textarea model="note" placeholder="Add a note" :rows="4" class="w-full" />
             <button class="mt-3 rounded-full bg-[#16120f] px-4 py-2 text-sm text-white">Save note</button>
         </form>
         <ul class="mt-6 space-y-3 text-sm">
             @foreach ($lead->notes as $note)
-                <li class="rounded-2xl bg-[#f6f1ea] p-3">{{ $note->body }} <span class="opacity-50">· {{ $note->user?->name }}</span></li>
+                <li class="cms-rich rounded-2xl bg-[#f6f1ea] p-3">{!! rich_html($note->body) !!} <span class="opacity-50">· {{ $note->user?->name }}</span></li>
             @endforeach
         </ul>
     </div>

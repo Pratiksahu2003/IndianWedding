@@ -29,7 +29,7 @@ class WebsiteController extends Controller
     public function page(string $page): View
     {
         $org = $this->studio();
-        abort_unless(in_array($page, ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team'], true), 404);
+        abort_unless(in_array($page, ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy'], true), 404);
 
         return view('public.'.$page, [
             'organization' => $org,

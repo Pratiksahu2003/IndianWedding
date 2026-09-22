@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\Role;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Services\AuditLogger;
@@ -12,9 +13,13 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
-    public function create(): View
+    public function create(Request $request): View
     {
-        return view('auth.login');
+        $portal = $request->routeIs('studio.login') ? 'studio' : 'client';
+
+        return view('auth.login', [
+            'portal' => $portal,
+        ]);
     }
 
     public function store(LoginRequest $request, AuditLogger $audit): RedirectResponse
@@ -40,6 +45,17 @@ class AuthenticatedSessionController extends Controller
         }
 
         $role = $user->roleIn($membership?->organization);
+        $portal = $request->input('portal', 'client');
+
+        if ($portal === 'studio' && $role === Role::Client) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()
+                ->withErrors(['email' => __('This email is registered as a client. Please use client login.')])
+                ->onlyInput('email');
+        }
 
         return redirect()->intended(route($role?->dashboardRoute() ?? 'app.dashboard'));
     }

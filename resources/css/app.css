@@ -19,9 +19,16 @@
     [x-cloak] { display: none !important; }
     html {
         scroll-behavior: smooth;
+        overflow-x: clip;
     }
     body {
         @apply bg-[#f6f1ea] text-[#16120f] antialiased;
+        overflow-x: clip;
+    }
+    img,
+    video {
+        max-width: 100%;
+        height: auto;
     }
     .studio-scroll {
         scrollbar-width: thin;
@@ -33,6 +40,74 @@
     .studio-scroll::-webkit-scrollbar-thumb {
         background: rgba(255,255,255,0.2);
         border-radius: 99px;
+    }
+    .legal-prose h2 {
+        @apply mt-10 font-[Cormorant_Garamond] text-2xl text-[#16120f] first:mt-0 md:text-3xl;
+    }
+    .legal-prose h3 {
+        @apply mt-8 text-base font-semibold text-[#16120f] md:text-lg;
+    }
+    .legal-prose p {
+        @apply mt-4 text-sm leading-relaxed text-[#16120f]/80 md:text-[15px];
+    }
+    .legal-prose ul,
+    .legal-prose ol {
+        @apply mt-4 list-outside space-y-2 pl-5 text-sm leading-relaxed text-[#16120f]/80 md:text-[15px];
+    }
+    .legal-prose ul {
+        @apply list-disc;
+    }
+    .legal-prose ol {
+        @apply list-decimal;
+    }
+    .legal-prose a {
+        @apply font-medium text-[#9b7b4b] underline decoration-[#c4a574]/40 underline-offset-2 transition hover:text-[#16120f];
+    }
+    .legal-prose .legal-callout {
+        @apply mt-6 rounded-2xl border border-[#c4a574]/30 bg-[#f6f1ea] px-5 py-4 text-sm leading-relaxed text-[#16120f]/85;
+    }
+    .rich-text-host {
+        @apply overflow-hidden rounded-2xl bg-[#f6f1ea] ring-1 ring-black/5;
+    }
+    .rich-text-host .rich-text-toolbar {
+        @apply border-b border-black/5 bg-[#efe8de] px-2 py-1.5;
+    }
+    .rich-text-host .rich-text-toolbar .ql-formats {
+        @apply mr-2;
+    }
+    .rich-text-host .rich-text-editor {
+        @apply px-3 py-3 text-sm leading-relaxed text-[#16120f];
+    }
+    .rich-text-host .ql-container.ql-snow {
+        @apply border-0;
+    }
+    .rich-text-host .ql-toolbar.ql-snow {
+        @apply border-0;
+    }
+    .rich-text-host .ql-editor {
+        @apply min-h-[5rem] px-0 py-0;
+    }
+    .rich-text-host .ql-editor.ql-blank::before {
+        @apply text-[#16120f]/35 not-italic;
+    }
+    .cms-rich {
+        @apply text-sm leading-relaxed text-[#16120f]/80 md:text-[15px];
+    }
+    .cms-rich p + p {
+        @apply mt-3;
+    }
+    .cms-rich ul,
+    .cms-rich ol {
+        @apply mt-3 list-outside space-y-1 pl-5;
+    }
+    .cms-rich ul {
+        @apply list-disc;
+    }
+    .cms-rich ol {
+        @apply list-decimal;
+    }
+    .cms-rich a {
+        @apply font-medium text-[#9b7b4b] underline underline-offset-2;
     }
     @media (prefers-reduced-motion: reduce) {
         *, *::before, *::after {

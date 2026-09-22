@@ -6,7 +6,7 @@
         @foreach ($faqs as $faq)
             <details class="rounded-2xl bg-white p-6">
                 <summary class="cursor-pointer font-medium">{{ $faq->question }}</summary>
-                <p class="mt-2 text-sm opacity-70">{{ $faq->answer }}</p>
+                <div class="cms-rich mt-2 text-sm opacity-70">{!! rich_html($faq->answer) !!}</div>
             </details>
         @endforeach
     </div>

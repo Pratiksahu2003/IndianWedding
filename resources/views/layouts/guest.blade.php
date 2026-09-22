@@ -18,7 +18,7 @@
 @endphp
 <div class="grid min-h-screen lg:grid-cols-2">
     <div class="relative isolate h-52 overflow-hidden lg:hidden">
-        <img src="{{ asset('images/auth/wedding-couple.jpg') }}" alt="" class="absolute inset-0 h-full w-full object-cover" width="1600" height="2200" decoding="async">
+        <img src="{{ \App\Support\UnikStudioAssets::url('auth-couple.jpg') }}" alt="" class="absolute inset-0 h-full w-full object-cover" width="1600" height="2200" decoding="async">
         <div class="absolute inset-0 bg-gradient-to-t from-[#0b1320] via-[#0b1320]/50 to-transparent"></div>
         <div class="relative z-10 flex h-full flex-col justify-end px-6 pb-5">
             <a href="/" class="inline-flex w-fit">
@@ -31,7 +31,7 @@
 
     <aside class="relative hidden min-h-screen overflow-hidden lg:block" aria-label="{{ $brand }}">
         <img
-            src="{{ asset('images/auth/wedding-couple.jpg') }}"
+            src="{{ \App\Support\UnikStudioAssets::url('auth-couple.jpg') }}"
             alt="Wedding photography by Unik Studio"
             class="absolute inset-0 h-full w-full object-cover"
             width="1600"
