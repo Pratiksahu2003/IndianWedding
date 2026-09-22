@@ -28,6 +28,62 @@
                 <x-studio.rich-textarea model="description" :rows="5" />
             </div>
         </div>
+
+        <div class="mt-6 space-y-4 border-t border-black/5 pt-6">
+            <div>
+                <h2 class="text-sm font-medium">Service images</h2>
+                <p class="mt-1 text-xs text-[#16120f]/60">Upload one or more images. Each file can be up to 4 MB.</p>
+            </div>
+
+            @if ($package->images->isNotEmpty())
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                    @foreach ($package->images as $image)
+                        <div class="group relative overflow-hidden rounded-2xl bg-[#f6f1ea]">
+                            <img src="{{ $image->url() }}" alt="{{ $package->name }}" class="h-36 w-full object-cover">
+                            <button
+                                type="button"
+                                wire:click="removeImage({{ $image->id }})"
+                                wire:confirm="Remove this image?"
+                                class="absolute right-2 top-2 rounded-full bg-[#16120f]/80 px-2 py-1 text-xs text-white opacity-0 transition group-hover:opacity-100"
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            <div class="rounded-2xl bg-[#f6f1ea] p-4">
+                <input
+                    type="file"
+                    wire:model="newImages"
+                    accept="image/*"
+                    multiple
+                    class="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-[#16120f] file:px-4 file:py-2 file:text-sm file:text-white"
+                >
+                <div wire:loading wire:target="newImages" class="mt-2 text-xs text-[#16120f]/60">Preparing files…</div>
+                @if (! empty($newImages))
+                    <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        @foreach ($newImages as $preview)
+                            <img src="{{ $preview->temporaryUrl() }}" alt="Preview" class="h-28 w-full rounded-xl object-cover">
+                        @endforeach
+                    </div>
+                    <button
+                        type="button"
+                        wire:click="uploadImages"
+                        wire:loading.attr="disabled"
+                        wire:target="uploadImages"
+                        class="mt-4 rounded-full bg-[#16120f] px-4 py-2 text-sm text-white disabled:opacity-50"
+                    >
+                        <span wire:loading.remove wire:target="uploadImages">Upload selected images</span>
+                        <span wire:loading wire:target="uploadImages">Uploading…</span>
+                    </button>
+                @endif
+            </div>
+            @error('newImages') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
+            @error('newImages.*') <p class="text-xs text-rose-600">{{ $message }}</p> @enderror
+        </div>
+
         @error('name') <p class="mt-2 text-xs text-rose-600">{{ $message }}</p> @enderror
         <div class="mt-6 flex gap-2">
             <button type="submit" class="rounded-full bg-[#16120f] px-5 py-2.5 text-sm text-white">{{ $isEdit ? 'Save changes' : 'Create service' }}</button>

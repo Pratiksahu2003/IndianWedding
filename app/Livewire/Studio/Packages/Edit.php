@@ -4,14 +4,19 @@ namespace App\Livewire\Studio\Packages;
 
 use App\Models\Package;
 use App\Support\Money;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.studio')]
 #[Title('Edit service')]
 class Edit extends Component
 {
+    use WithFileUploads;
+
     public Package $package;
 
     public string $name = '';
@@ -36,10 +41,13 @@ class Edit extends Component
 
     public string $description = '';
 
+    /** @var array<int, TemporaryUploadedFile> */
+    public array $newImages = [];
+
     public function mount(Package $package): void
     {
         $this->authorize('update', $package);
-        $this->package = $package;
+        $this->package = $package->load('images');
         $this->name = $package->name;
         $this->price = (int) round($package->price / 100);
         $this->duration_hours = $package->duration_hours ?? 8;
@@ -51,6 +59,56 @@ class Edit extends Component
         $this->includes_pre_wedding = (bool) $package->includes_pre_wedding;
         $this->includes_drone = (bool) $package->includes_drone;
         $this->description = $package->description ?? '';
+    }
+
+    public function uploadImages(): void
+    {
+        $this->authorize('update', $this->package);
+
+        $this->validate([
+            'newImages' => ['required', 'array', 'min:1'],
+            'newImages.*' => ['required', 'image', 'max:4096'],
+        ], [
+            'newImages.*.max' => 'Each image must be 4 MB or smaller.',
+            'newImages.*.image' => 'Only image files are allowed.',
+        ]);
+
+        $sortOrder = (int) $this->package->images()->max('sort_order');
+
+        foreach ($this->newImages as $image) {
+            $sortOrder++;
+            $path = $image->store(
+                sprintf('org/%s/packages/%s', $this->package->organization_id, $this->package->id),
+                'public',
+            );
+
+            $this->package->images()->create([
+                'organization_id' => $this->package->organization_id,
+                'path' => $path,
+                'sort_order' => $sortOrder,
+            ]);
+        }
+
+        $this->syncCoverImage();
+        $this->reset('newImages');
+        $this->package->load('images');
+        session()->flash('status', 'Images uploaded.');
+    }
+
+    public function removeImage(int $imageId): void
+    {
+        $this->authorize('update', $this->package);
+
+        $image = $this->package->images()->findOrFail($imageId);
+
+        if (! str_starts_with($image->path, 'http://') && ! str_starts_with($image->path, 'https://')) {
+            Storage::disk('public')->delete($image->path);
+        }
+
+        $image->delete();
+        $this->syncCoverImage();
+        $this->package->load('images');
+        session()->flash('status', 'Image removed.');
     }
 
     public function save()
@@ -79,6 +137,15 @@ class Edit extends Component
         session()->flash('status', 'Service updated.');
 
         return $this->redirect(route('app.packages.index'), navigate: true);
+    }
+
+    protected function syncCoverImage(): void
+    {
+        $firstImage = $this->package->images()->orderBy('sort_order')->first();
+
+        $this->package->update([
+            'cover_image' => $firstImage?->url(),
+        ]);
     }
 
     public function render()

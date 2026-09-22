@@ -2,7 +2,7 @@
 @section('content')
 <article>
     <section class="relative overflow-hidden">
-        <img src="{{ $item->image_path }}" alt="{{ $item->title }}" class="h-[78vh] w-full object-cover">
+        <img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" class="h-[78vh] w-full object-cover">
         <div class="absolute inset-0 bg-gradient-to-t from-[#16120f] via-[#16120f]/35 to-transparent"></div>
         <div class="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-6 pb-14 text-white">
             <a href="/portfolio" class="text-sm text-white/70">← All projects</a>
@@ -36,7 +36,7 @@
             <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3">
                 @foreach ($related as $other)
                     <a href="{{ $other->publicUrl() }}" class="group overflow-hidden rounded-3xl">
-                        <img src="{{ $other->image_path }}" alt="{{ $other->title }}" class="h-64 w-full object-cover transition duration-700 group-hover:scale-105">
+                        <img src="{{ $other->imageUrl() }}" alt="{{ $other->title }}" class="h-64 w-full object-cover transition duration-700 group-hover:scale-105">
                         <p class="mt-2 text-sm">{{ $other->title }}</p>
                     </a>
                 @endforeach

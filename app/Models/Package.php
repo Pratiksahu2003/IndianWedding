@@ -47,6 +47,11 @@ class Package extends Model
         return $this->hasMany(PackageAddon::class);
     }
 
+    public function images(): HasMany
+    {
+        return $this->hasMany(PackageImage::class)->orderBy('sort_order');
+    }
+
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class);

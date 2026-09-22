@@ -52,7 +52,7 @@
     <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         @foreach ($portfolio as $item)
             <a href="{{ $item->publicUrl() }}" class="overflow-hidden rounded-3xl">
-                <img src="{{ $item->image_path }}" alt="{{ $item->title }}" class="h-56 w-full object-cover transition duration-700 hover:scale-105" />
+                <img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" class="h-56 w-full object-cover transition duration-700 hover:scale-105" />
             </a>
         @endforeach
     </div>

@@ -12,14 +12,20 @@ use App\Models\Testimonial;
 use App\Support\SiteCopy;
 use App\Support\SocialPlatforms;
 use App\Support\Tenant;
+use App\Support\WebsiteCmsMenu;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts.studio')]
 #[Title('Website content')]
 class WebsiteEditor extends Component
 {
+    use WithFileUploads;
+
     /** Main CMS section: content, social, team, testimonials, portfolio, faq */
     public string $menu = 'content';
 
@@ -30,15 +36,27 @@ class WebsiteEditor extends Component
     public array $fields = [];
 
     public string $team_name = '';
+
     public string $team_role = '';
+
     public string $testimonial_author = '';
+
     public string $testimonial_role = '';
+
     public string $testimonial_quote = '';
+
     public string $faq_question = '';
+
     public string $faq_answer = '';
+
     public string $portfolio_title = '';
+
     public string $portfolio_image = '';
+
     public string $portfolio_category = 'wedding';
+
+    /** @var array<int, TemporaryUploadedFile> */
+    public array $portfolio_uploads = [];
 
     public function mount(): void
     {
@@ -172,24 +190,103 @@ class WebsiteEditor extends Component
         Faq::query()->whereKey($id)->delete();
     }
 
+    public function updatedPortfolioUploads(): void
+    {
+        $this->validate($this->portfolioUploadRules(), $this->portfolioUploadMessages());
+    }
+
     public function addPortfolio(): void
     {
-        $this->validate(['portfolio_title' => ['required'], 'portfolio_image' => ['required', 'url']]);
-        PortfolioItem::query()->create([
-            'organization_id' => $this->organization()->id,
-            'title' => $this->portfolio_title,
-            'slug' => \Illuminate\Support\Str::slug($this->portfolio_title).'-'.\Illuminate\Support\Str::lower(\Illuminate\Support\Str::random(4)),
-            'image_path' => $this->portfolio_image,
-            'category' => $this->portfolio_category ?: 'wedding',
-            'is_published' => true,
-            'sort_order' => PortfolioItem::query()->count() + 1,
-        ]);
-        $this->reset('portfolio_title', 'portfolio_image');
+        $this->validate(array_merge([
+            'portfolio_title' => ['required', 'string', 'max:160'],
+            'portfolio_category' => ['nullable', 'string', 'max:80'],
+            'portfolio_image' => ['nullable', 'url', 'max:2048'],
+        ], $this->portfolioUploadRules()), $this->portfolioUploadMessages());
+
+        $uploads = array_values(array_filter(
+            $this->portfolio_uploads,
+            fn ($file) => $file instanceof TemporaryUploadedFile,
+        ));
+        $imageUrl = trim($this->portfolio_image);
+
+        if ($uploads === [] && $imageUrl === '') {
+            $this->addError('portfolio_uploads', 'Upload an image (max 2 MB) or paste an image URL.');
+
+            return;
+        }
+
+        $org = $this->organization();
+        $sort = (int) PortfolioItem::query()->max('sort_order');
+        $category = $this->portfolio_category !== '' ? $this->portfolio_category : 'wedding';
+        $title = $this->portfolio_title;
+
+        if ($uploads !== []) {
+            foreach ($uploads as $index => $file) {
+                $sort++;
+                $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
+                $path = $file->storeAs(
+                    "org/{$org->id}/portfolio",
+                    $filename,
+                    'public',
+                );
+
+                $itemTitle = count($uploads) > 1 ? $title.' ('.($index + 1).')' : $title;
+
+                PortfolioItem::query()->create([
+                    'organization_id' => $org->id,
+                    'title' => $itemTitle,
+                    'slug' => Str::slug($itemTitle).'-'.Str::lower(Str::random(4)),
+                    'image_path' => $path,
+                    'category' => $category,
+                    'is_published' => true,
+                    'sort_order' => $sort,
+                ]);
+            }
+        } else {
+            $sort++;
+            PortfolioItem::query()->create([
+                'organization_id' => $org->id,
+                'title' => $title,
+                'slug' => Str::slug($title).'-'.Str::lower(Str::random(4)),
+                'image_path' => $imageUrl,
+                'category' => $category,
+                'is_published' => true,
+                'sort_order' => $sort,
+            ]);
+        }
+
+        $this->reset('portfolio_title', 'portfolio_image', 'portfolio_uploads');
+        session()->flash('status', 'Gallery image added.');
     }
 
     public function deletePortfolio(int $id): void
     {
-        PortfolioItem::query()->whereKey($id)->delete();
+        $item = PortfolioItem::query()->findOrFail($id);
+        $item->deleteStoredImage();
+        $item->delete();
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    protected function portfolioUploadRules(): array
+    {
+        return [
+            'portfolio_uploads' => ['nullable', 'array'],
+            'portfolio_uploads.*' => ['image', 'mimes:jpg,jpeg,png,webp,gif', 'max:2048'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function portfolioUploadMessages(): array
+    {
+        return [
+            'portfolio_uploads.*.max' => 'Each image must be 2 MB or smaller.',
+            'portfolio_uploads.*.image' => 'Only image files are allowed.',
+            'portfolio_uploads.*.mimes' => 'Use JPG, PNG, WEBP, or GIF images.',
+        ];
     }
 
     public function render()
@@ -210,8 +307,8 @@ class WebsiteEditor extends Component
         return view('livewire.platform.website-editor', [
             'groups' => $groups,
             'activeCopyRows' => $activeCopyRows,
-            'cmsMenu' => \App\Support\WebsiteCmsMenu::tree(),
-            'copyGroupLabel' => \App\Support\WebsiteCmsMenu::copyGroupLabel($this->copyGroup),
+            'cmsMenu' => WebsiteCmsMenu::tree(),
+            'copyGroupLabel' => WebsiteCmsMenu::copyGroupLabel($this->copyGroup),
             'team' => TeamMember::query()->orderBy('sort_order')->get(),
             'testimonials' => Testimonial::query()->latest()->get(),
             'faqs' => Faq::query()->orderBy('sort_order')->get(),

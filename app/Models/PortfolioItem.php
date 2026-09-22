@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PortfolioItem extends Model
@@ -36,5 +37,35 @@ class PortfolioItem extends Model
     public function publicUrl(): string
     {
         return url('/projects/'.$this->slug);
+    }
+
+    public function imageUrl(): string
+    {
+        $path = (string) $this->image_path;
+
+        if ($path === '') {
+            return '';
+        }
+
+        if (
+            str_starts_with($path, 'http://')
+            || str_starts_with($path, 'https://')
+            || str_starts_with($path, '/')
+        ) {
+            return $path;
+        }
+
+        return Storage::disk('public')->url($path);
+    }
+
+    public function deleteStoredImage(): void
+    {
+        $path = (string) $this->image_path;
+
+        if ($path === '' || str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return;
+        }
+
+        Storage::disk('public')->delete($path);
     }
 }

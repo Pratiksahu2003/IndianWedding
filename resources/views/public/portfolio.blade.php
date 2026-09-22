@@ -5,7 +5,7 @@
     <div class="mt-10 grid grid-cols-2 gap-3 md:grid-cols-3">
         @foreach ($portfolio as $item)
             <a href="{{ $item->publicUrl() }}" class="group">
-                <img src="{{ $item->image_path }}" alt="{{ $item->title }}" class="h-64 w-full rounded-3xl object-cover transition duration-700 group-hover:scale-105" />
+                <img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" class="h-64 w-full rounded-3xl object-cover transition duration-700 group-hover:scale-105" />
                 <p class="mt-2 text-sm">{{ $item->title }}</p>
             </a>
         @endforeach

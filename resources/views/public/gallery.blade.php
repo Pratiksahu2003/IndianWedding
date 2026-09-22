@@ -7,7 +7,7 @@
     <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         @foreach ($portfolio as $item)
             <a href="{{ $item->publicUrl() }}">
-                <img src="{{ $item->image_path }}" alt="{{ $item->title }}" class="h-56 w-full rounded-3xl object-cover">
+                <img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" class="h-56 w-full rounded-3xl object-cover">
                 <figcaption class="mt-2 text-sm opacity-60">{{ $item->title }}</figcaption>
             </a>
         @endforeach

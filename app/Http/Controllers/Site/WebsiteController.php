@@ -7,6 +7,7 @@ use App\Models\Faq;
 use App\Models\Organization;
 use App\Models\Package;
 use App\Models\PortfolioItem;
+use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\Tenant;
 use Illuminate\Support\Str;
@@ -37,7 +38,7 @@ class WebsiteController extends Controller
             'testimonials' => $org ? Testimonial::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->latest()->get() : collect(),
             'portfolio' => $org ? PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
             'faqs' => $org ? Faq::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
-            'team' => $org ? \App\Models\TeamMember::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
+            'team' => $org ? TeamMember::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
         ]);
     }
 
@@ -47,7 +48,7 @@ class WebsiteController extends Controller
         abort_unless($org, 404);
 
         $package = Package::withoutTenant()
-            ->with('items')
+            ->with(['items', 'images'])
             ->where('organization_id', $org->id)
             ->where('slug', $slug)
             ->where('is_public', true)

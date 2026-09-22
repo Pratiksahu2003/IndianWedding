@@ -160,14 +160,38 @@
                 </header>
                 <form wire:submit="addPortfolio" class="mb-6 grid gap-3 rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
                     <input wire:model="portfolio_title" placeholder="Title" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
-                    <input wire:model="portfolio_image" placeholder="Image URL" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
+                    @error('portfolio_title') <p class="text-xs text-rose-700">{{ $message }}</p> @enderror
+                    <div>
+                        <input
+                            type="file"
+                            wire:model="portfolio_uploads"
+                            accept="image/jpeg,image/png,image/webp,image/gif"
+                            multiple
+                            class="block w-full rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm file:mr-4 file:rounded-full file:border-0 file:bg-[#16120f] file:px-4 file:py-2 file:text-sm file:text-white"
+                        >
+                        <p class="mt-1.5 text-xs text-[#16120f]/55">Upload one or more images. Each file can be up to 2 MB.</p>
+                        <div wire:loading wire:target="portfolio_uploads" class="mt-1 text-xs text-[#16120f]/60">Preparing files…</div>
+                        @error('portfolio_uploads') <p class="mt-1 text-xs text-rose-700">{{ $message }}</p> @enderror
+                        @error('portfolio_uploads.*') <p class="mt-1 text-xs text-rose-700">{{ $message }}</p> @enderror
+                        @if (! empty($portfolio_uploads))
+                            <div class="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                @foreach ($portfolio_uploads as $preview)
+                                    @if (method_exists($preview, 'temporaryUrl'))
+                                        <img src="{{ $preview->temporaryUrl() }}" alt="Preview" class="h-24 w-full rounded-xl object-cover">
+                                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                    <input wire:model="portfolio_image" placeholder="Image URL (optional if you upload a file)" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
+                    @error('portfolio_image') <p class="text-xs text-rose-700">{{ $message }}</p> @enderror
                     <input wire:model="portfolio_category" placeholder="Category" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
                     <button class="rounded-full bg-[#16120f] py-3 text-white">Add gallery image</button>
                 </form>
                 <div class="grid grid-cols-2 gap-3 md:grid-cols-4">
                     @foreach ($portfolio as $item)
                         <figure class="relative rounded-[28px] bg-white p-2 shadow-sm ring-1 ring-black/5">
-                            <img src="{{ $item->image_path }}" alt="{{ $item->title }}" class="h-40 w-full rounded-2xl object-cover">
+                            <img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" class="h-40 w-full rounded-2xl object-cover">
                             <button type="button" wire:click="deletePortfolio({{ $item->id }})" class="absolute right-4 top-4 rounded-full bg-white px-2 py-0.5 text-xs shadow">Remove</button>
                             <figcaption class="mt-2 px-1 text-xs">{{ $item->title }}</figcaption>
                             @if ($item->slug)

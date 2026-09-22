@@ -2,7 +2,15 @@
 @section('content')
 <article>
     <section class="relative overflow-hidden">
-        <img src="{{ $package->cover_image ?: \App\Support\UnikStudioAssets::url('hero-slide.png') }}" alt="{{ $package->name }}" class="h-[70vh] w-full object-cover">
+        @if ($package->images->count() > 1)
+            <div class="grid h-[70vh] grid-cols-2 gap-1 md:grid-cols-3">
+                @foreach ($package->images->take(6) as $image)
+                    <img src="{{ $image->url() }}" alt="{{ $package->name }}" class="h-full w-full object-cover">
+                @endforeach
+            </div>
+        @else
+            <img src="{{ $package->images->first()?->url() ?: ($package->cover_image ?: \App\Support\UnikStudioAssets::url('hero-slide.png')) }}" alt="{{ $package->name }}" class="h-[70vh] w-full object-cover">
+        @endif
         <div class="absolute inset-0 bg-gradient-to-t from-[#16120f] via-[#16120f]/40 to-transparent"></div>
         <div class="absolute inset-x-0 bottom-0 mx-auto max-w-6xl px-6 pb-14 text-white">
             <a href="/services" class="text-sm text-white/70">← All services</a>
@@ -61,7 +69,7 @@
             <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
                 @foreach ($gallery as $shot)
                     <a href="{{ $shot->publicUrl() }}" class="overflow-hidden rounded-3xl">
-                        <img src="{{ $shot->image_path }}" alt="{{ $shot->title }}" class="h-56 w-full object-cover transition duration-700 hover:scale-105">
+                        <img src="{{ $shot->imageUrl() }}" alt="{{ $shot->title }}" class="h-56 w-full object-cover transition duration-700 hover:scale-105">
                     </a>
                 @endforeach
             </div>
