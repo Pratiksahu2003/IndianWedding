@@ -18,4 +18,13 @@ class GalleryItem extends Model
         ];
     }
 
+    public function file()
+    {
+        return $this->belongsTo(MediaFile::class, 'file_id');
+    }
+
+    public function gallery()
+    {
+        return $this->belongsTo(Gallery::class);
+    }
 }

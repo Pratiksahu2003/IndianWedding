@@ -58,7 +58,13 @@ class User extends Authenticatable
             ->where('organization_id', $organization->id)
             ->first();
 
-        return $membership ? Role::from($membership->role) : null;
+        if (! $membership) {
+            return null;
+        }
+
+        return $membership->role instanceof Role
+            ? $membership->role
+            : Role::from($membership->role);
     }
 
     public function canInOrganization(string $permission, ?Organization $organization = null): bool
