@@ -16,22 +16,6 @@
     </form>
 @endif
 
-@if ($activeModule === 'team')
-    <form wire:submit="addTeamMember" class="mb-6 grid gap-3 rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5 md:grid-cols-3">
-        <input wire:model="team_name" placeholder="Name" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
-        <input wire:model="team_role" placeholder="Role" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">
-        <button class="rounded-full bg-[#16120f] text-white">Add team member</button>
-    </form>
-    <div class="grid gap-3 md:grid-cols-2">
-        @foreach ($team as $member)
-            <article class="flex items-center justify-between rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-black/5">
-                <div><p class="font-medium">{{ $member->name }}</p><p class="text-sm opacity-60">{{ $member->role }}</p></div>
-                <button type="button" wire:click="deleteTeamMember({{ $member->id }})" wire:confirm="Remove this team member?" class="text-sm text-rose-700">Remove</button>
-            </article>
-        @endforeach
-    </div>
-@endif
-
 @if ($activeModule === 'testimonials')
     <form wire:submit="addTestimonial" class="mb-6 grid gap-3 rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-black/5">
         <input wire:model="testimonial_author" placeholder="Author" class="rounded-2xl bg-[#f6f1ea] px-4 py-3">

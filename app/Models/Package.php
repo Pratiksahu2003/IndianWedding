@@ -59,7 +59,26 @@ class Package extends Model
 
     public function publicUrl(): string
     {
-        return url('/services/'.$this->slug);
+        return match ($this->package_type) {
+            'wedding' => url('/packages/'.$this->slug),
+            'production' => url('/services/'.$this->slug),
+            default => url('/services/'.$this->slug),
+        };
+    }
+
+    public function typeLabel(): string
+    {
+        return match ($this->package_type) {
+            'wedding' => 'Wedding package',
+            'production' => 'Production package',
+            'addon' => 'Add-on',
+            default => 'Service',
+        };
+    }
+
+    public function scopeOfType($query, string $type)
+    {
+        return $query->where('package_type', $type);
     }
 
     public function youtubeEmbedUrl(): ?string
@@ -70,5 +89,28 @@ class Package extends Model
     public function hasYoutubeVideo(): bool
     {
         return $this->youtubeEmbedUrl() !== null;
+    }
+
+    public function coverUrl(): string
+    {
+        if ($this->cover_image) {
+            return $this->cover_image;
+        }
+
+        if ($this->relationLoaded('images') && $this->images->isNotEmpty()) {
+            return $this->images->first()->url();
+        }
+
+        $covers = \App\Support\UnikStudioAssets::serviceCovers();
+
+        if (isset($covers[$this->slug])) {
+            return \App\Support\UnikStudioAssets::url($covers[$this->slug]);
+        }
+
+        return match ($this->package_type) {
+            'wedding' => \App\Support\UnikStudioAssets::url('service-wedding.jpg'),
+            'production' => \App\Support\UnikStudioAssets::url('service-cinema.jpg'),
+            default => \App\Support\UnikStudioAssets::url('hero-slide.png'),
+        };
     }
 }

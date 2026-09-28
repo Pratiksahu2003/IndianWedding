@@ -40,7 +40,7 @@
             ['app.files.index', 'Files', 'files', 'app.files.*'],
         ],
         'Services' => [
-            ['app.packages.index', 'All services', 'packages', 'app.packages.*'],
+            ['app.packages.index', 'Packages & services', 'packages', 'app.packages.*'],
         ],
         'Production' => [
             ['app.production.index', 'All projects', 'gallery', 'app.production.*'],

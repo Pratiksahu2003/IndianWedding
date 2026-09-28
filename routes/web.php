@@ -72,7 +72,7 @@ Route::get('/packages/{slug}', [WebsiteController::class, 'service'])->name('pub
 Route::get('/projects/{slug}', [WebsiteController::class, 'project'])->name('public.projects.show');
 Route::get('/portfolio/{slug}', [WebsiteController::class, 'project'])->name('public.portfolio.show');
 Route::get('/{page}', [WebsiteController::class, 'page'])
-    ->whereIn('page', ['about', 'services', 'production', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy']);
+    ->whereIn('page', ['about', 'services', 'production', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'terms-and-conditions', 'privacy-policy', 'cookie-policy']);
 
 Route::post('/inquiry', [InquiryController::class, 'store'])
     ->middleware('throttle:8,1')

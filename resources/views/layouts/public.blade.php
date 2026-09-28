@@ -41,8 +41,8 @@
         $navLinks = [
             ['/', site('nav.home', 'Home'), request()->is('/')],
             ['/about', site('nav.about', 'About'), request()->is('about')],
-            ['/our-team', site('nav.team', 'Our Team'), request()->is('our-team')],
-            ['/services', site('nav.services', 'Services'), request()->is('services*')],
+            ['/services', site('nav.services', 'Services'), request()->is('services') || request()->is('services/*')],
+            ['/packages', site('nav.packages', 'Packages'), request()->is('packages*')],
             ['/production', site('nav.production', 'Production'), request()->is('production*')],
             ['/gallery', site('nav.gallery', 'Gallery'), request()->is('gallery') || request()->is('portfolio*') || request()->is('projects*')],
             ['/testimonials', site('nav.testimonials', 'Feedbacks'), request()->is('testimonials')],
@@ -111,6 +111,7 @@
                     <a class="transition hover:text-white" href="/">{{ site('nav.home', 'Home') }}</a>
                     <a class="transition hover:text-white" href="/about">{{ site('nav.about', 'About us') }}</a>
                     <a class="transition hover:text-white" href="/services">{{ site('nav.services', 'Our Services') }}</a>
+                    <a class="transition hover:text-white" href="/packages">{{ site('nav.packages', 'Packages') }}</a>
                     <a class="transition hover:text-white" href="/production">{{ site('nav.production', 'Production') }}</a>
                     <a class="transition hover:text-white" href="/gallery">{{ site('nav.gallery', 'Gallery') }}</a>
                     <a class="transition hover:text-white" href="/contact">{{ site('nav.contact', 'Get in touch') }}</a>

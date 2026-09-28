@@ -7,7 +7,6 @@ use App\Models\Organization;
 use App\Models\Package;
 use App\Models\PortfolioItem;
 use App\Models\SiteContent;
-use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\SiteCopy;
 use App\Support\SocialPlatforms;
@@ -36,10 +35,6 @@ class WebsiteEditor extends Component
 
     /** @var array<string, TemporaryUploadedFile|null> */
     public array $imageUploads = [];
-
-    public string $team_name = '';
-
-    public string $team_role = '';
 
     public string $testimonial_author = '';
 
@@ -152,24 +147,6 @@ class WebsiteEditor extends Component
 
         SiteCopy::forget($org->id);
         session()->flash('status', 'Social media links saved.');
-    }
-
-    public function addTeamMember(): void
-    {
-        $this->validate(['team_name' => ['required', 'string', 'max:120'], 'team_role' => ['nullable', 'string', 'max:120']]);
-        TeamMember::query()->create([
-            'organization_id' => $this->organization()->id,
-            'name' => $this->team_name,
-            'role' => $this->team_role,
-            'is_published' => true,
-            'sort_order' => TeamMember::query()->count() + 1,
-        ]);
-        $this->reset('team_name', 'team_role');
-    }
-
-    public function deleteTeamMember(int $id): void
-    {
-        TeamMember::query()->whereKey($id)->delete();
     }
 
     public function addTestimonial(): void
@@ -333,7 +310,6 @@ class WebsiteEditor extends Component
             'activeModule' => $activeModule,
             'pageLabel' => WebsiteCmsMenu::pageLabel($this->page),
             'sectionLabel' => WebsiteCmsMenu::sectionLabel($this->page, $this->section),
-            'team' => TeamMember::query()->orderBy('sort_order')->get(),
             'testimonials' => Testimonial::query()->latest()->get(),
             'faqs' => Faq::query()->orderBy('sort_order')->get(),
             'portfolio' => PortfolioItem::query()->orderBy('sort_order')->get(),

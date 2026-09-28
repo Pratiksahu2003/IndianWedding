@@ -8,7 +8,6 @@ use App\Models\Package;
 use App\Models\PackageItem;
 use App\Models\PortfolioItem;
 use App\Models\SiteContent;
-use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\SiteCopy;
 use App\Support\Tenant;
@@ -49,24 +48,6 @@ class UnikStudioContentSeeder extends Seeder
             );
         }
         SiteCopy::forget($org->id);
-
-        TeamMember::withoutTenant()->where('organization_id', $org->id)->delete();
-        foreach ([
-            ['Matthew Taylor', 'Founder & CEO'],
-            ['Louisa Abadie', 'Writer, Photographer'],
-            ['Amelia Harper', 'Photographer, Manager'],
-            ['Mike Johnson', 'Writer, Manager'],
-            ['Harper Wilson', 'Photographer, Manager'],
-            ['Nicholas White', 'Photographer, Manager'],
-        ] as $i => [$name, $role]) {
-            TeamMember::query()->create([
-                'organization_id' => $org->id,
-                'name' => $name,
-                'role' => $role,
-                'is_published' => true,
-                'sort_order' => $i,
-            ]);
-        }
 
         Testimonial::withoutTenant()->where('organization_id', $org->id)->delete();
         foreach ([
@@ -169,7 +150,6 @@ class UnikStudioContentSeeder extends Seeder
             $i('brand', 'brand.tagline', 'Tagline', 'Capturing Moments, Creating Memories', 'input'),
             $i('nav', 'nav.home', 'Nav: Home', 'Home', 'input'),
             $i('nav', 'nav.about', 'Nav: About', 'About', 'input'),
-            $i('nav', 'nav.team', 'Nav: Our Team', 'Our Team', 'input'),
             $i('nav', 'nav.services', 'Nav: Service', 'Service', 'input'),
             $i('nav', 'nav.packages', 'Nav: Pricing', 'Pricing Page', 'input'),
             $i('nav', 'nav.reservation', 'Nav: Reservation', 'Make Reservation', 'input'),
@@ -226,8 +206,6 @@ class UnikStudioContentSeeder extends Seeder
             $i('about', 'about.values_heading', 'Values heading', 'OUR CORE VALUES'),
             $i('about', 'about.mission', 'Mission', 'Our mission is to capture emotions, moments, and memories in their purest form. We aim to turn every special occasion into a visual masterpiece that our clients can cherish for a lifetime.'),
             $i('about', 'about.vision', 'Vision', 'At Unik Studio, our destination is not just about reaching the top, but about creating a legacy in the world of photography and cinematography. We envision a future where every celebration, every milestone, and every story is captured with creativity, precision, and heartfelt emotions.'),
-            $i('about', 'about.team_heading', 'Team heading', 'Our Team'),
-
             $i('services', 'services.eyebrow', 'Services email line', 'wedding@unikstudio.in', 'input'),
             $i('services', 'services.heading', 'Services heading', 'Our Services'),
             $i('services', 'services.intro', 'Services intro', 'At Unik Studio, we offer a wide range of professional photography and cinematography services designed to make your moments unforgettable. From weddings to birthdays and even music video productions, our team ensures every detail is captured with perfection.'),

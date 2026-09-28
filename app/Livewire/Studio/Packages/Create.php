@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Studio\Packages;
 
+use App\Livewire\Studio\Packages\Concerns\ManagesPackageFeatures;
 use App\Models\Package;
 use App\Support\Money;
 use App\Support\Tenant;
@@ -15,6 +16,10 @@ use Livewire\Component;
 #[Title('New service')]
 class Create extends Component
 {
+    use ManagesPackageFeatures;
+
+    public string $package_type = 'service';
+
     public string $name = '';
 
     public int $price = 0;
@@ -44,6 +49,7 @@ class Create extends Component
         $this->authorize('create', Package::class);
 
         $data = $this->validate([
+            'package_type' => ['required', 'in:service,wedding,production,addon'],
             'name' => ['required', 'string', 'max:120'],
             'price' => ['required', 'integer', 'min:0'],
             'duration_hours' => ['required', 'integer', 'min:1'],
@@ -62,7 +68,7 @@ class Create extends Component
             }],
         ]);
 
-        Package::query()->create([
+        $package = Package::query()->create([
             ...$data,
             'youtube_url' => trim($this->youtube_url) ?: null,
             'price' => Money::fromMajor($this->price),
@@ -70,9 +76,12 @@ class Create extends Component
             'slug' => Str::slug($this->name).'-'.Str::lower(Str::random(4)),
             'is_active' => true,
             'is_public' => true,
+            'sort_order' => (int) Package::query()->max('sort_order') + 1,
         ]);
 
-        session()->flash('status', 'Service created.');
+        $this->syncFeatureItems($package);
+
+        session()->flash('status', 'Package created.');
 
         return $this->redirect(route('app.packages.index'), navigate: true);
     }

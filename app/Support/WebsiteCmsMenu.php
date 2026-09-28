@@ -121,15 +121,6 @@ class WebsiteCmsMenu
                 ],
             ],
             [
-                'id' => 'team',
-                'label' => 'Our Team page',
-                'url' => '/our-team',
-                'sections' => [
-                    ['id' => 'content', 'label' => 'Page content'],
-                    ['id' => 'team', 'label' => 'Team members', 'module' => 'team'],
-                ],
-            ],
-            [
                 'id' => 'lead_popup',
                 'label' => 'Enquiry popup',
                 'url' => '/',

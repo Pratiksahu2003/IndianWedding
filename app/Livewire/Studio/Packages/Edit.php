@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Studio\Packages;
 
+use App\Livewire\Studio\Packages\Concerns\ManagesPackageFeatures;
 use App\Models\Package;
 use App\Support\Money;
 use App\Support\YoutubeEmbed;
@@ -16,9 +17,11 @@ use Livewire\WithFileUploads;
 #[Title('Edit service')]
 class Edit extends Component
 {
-    use WithFileUploads;
+    use ManagesPackageFeatures, WithFileUploads;
 
     public Package $package;
+
+    public string $package_type = 'service';
 
     public string $name = '';
 
@@ -50,7 +53,9 @@ class Edit extends Component
     public function mount(Package $package): void
     {
         $this->authorize('update', $package);
-        $this->package = $package->load('images');
+        $this->package = $package->load(['images', 'items']);
+        $this->package_type = $package->package_type ?? 'service';
+        $this->featureItems = $package->items->pluck('name')->all();
         $this->name = $package->name;
         $this->price = (int) round($package->price / 100);
         $this->duration_hours = $package->duration_hours ?? 8;
@@ -120,6 +125,7 @@ class Edit extends Component
         $this->authorize('update', $this->package);
 
         $data = $this->validate([
+            'package_type' => ['required', 'in:service,wedding,production,addon'],
             'name' => ['required', 'string', 'max:120'],
             'price' => ['required', 'integer', 'min:0'],
             'duration_hours' => ['required', 'integer', 'min:1'],
@@ -144,7 +150,9 @@ class Edit extends Component
             'price' => Money::fromMajor($this->price),
         ]);
 
-        session()->flash('status', 'Service updated.');
+        $this->syncFeatureItems($this->package);
+
+        session()->flash('status', 'Package updated.');
 
         return $this->redirect(route('app.packages.index'), navigate: true);
     }

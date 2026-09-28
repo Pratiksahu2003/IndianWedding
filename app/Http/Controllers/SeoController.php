@@ -25,11 +25,13 @@ class SeoController extends Controller
     public function sitemap(): Response
     {
         $org = \App\Models\Organization::query()->where('is_active', true)->first();
-        $paths = ['/', '/about', '/our-team', '/services', '/production', '/packages', '/portfolio', '/gallery', '/testimonials', '/faq', '/contact', '/book-consultation', '/terms-and-conditions', '/privacy-policy', '/cookie-policy'];
+        $paths = ['/', '/about', '/services', '/production', '/packages', '/portfolio', '/gallery', '/testimonials', '/faq', '/contact', '/book-consultation', '/terms-and-conditions', '/privacy-policy', '/cookie-policy'];
         if ($org) {
             $paths = array_merge(
                 $paths,
-                \App\Models\Package::withoutTenant()->where('organization_id', $org->id)->where('is_public', true)->where('is_active', true)->pluck('slug')->map(fn ($slug) => '/services/'.$slug)->all(),
+                \App\Models\Package::withoutTenant()->where('organization_id', $org->id)->where('package_type', 'service')->where('is_public', true)->where('is_active', true)->pluck('slug')->map(fn ($slug) => '/services/'.$slug)->all(),
+                \App\Models\Package::withoutTenant()->where('organization_id', $org->id)->where('package_type', 'wedding')->where('is_public', true)->where('is_active', true)->pluck('slug')->map(fn ($slug) => '/packages/'.$slug)->all(),
+                \App\Models\Package::withoutTenant()->where('organization_id', $org->id)->where('package_type', 'production')->where('is_public', true)->where('is_active', true)->pluck('slug')->map(fn ($slug) => '/services/'.$slug)->all(),
                 \App\Models\ProductionProject::withoutTenant()->where('organization_id', $org->id)->where('is_public', true)->where('is_active', true)->pluck('slug')->map(fn ($slug) => '/production/'.$slug)->all(),
                 \App\Models\PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->whereNotNull('slug')->pluck('slug')->map(fn ($slug) => '/projects/'.$slug)->all(),
             );

@@ -8,7 +8,6 @@ use App\Models\Organization;
 use App\Models\Package;
 use App\Models\PortfolioItem;
 use App\Models\ProductionProject;
-use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\Tenant;
 use Illuminate\Support\Str;
@@ -22,7 +21,7 @@ class WebsiteController extends Controller
 
         return view('public.home', [
             'organization' => $org,
-            'packages' => $org ? Package::withoutTenant()->where('organization_id', $org->id)->where('is_public', true)->where('is_active', true)->orderBy('sort_order')->get() : collect(),
+            'packages' => $org ? $this->publicPackages($org->id, 'service')->take(6) : collect(),
             'testimonials' => $org ? Testimonial::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->latest()->limit(6)->get() : collect(),
             'portfolio' => $org ? PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->limit(12)->get() : collect(),
         ]);
@@ -31,25 +30,47 @@ class WebsiteController extends Controller
     public function page(string $page): View
     {
         $org = $this->studio();
-        abort_unless(in_array($page, ['about', 'services', 'production', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy'], true), 404);
+        abort_unless(in_array($page, ['about', 'services', 'production', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'terms-and-conditions', 'privacy-policy', 'cookie-policy'], true), 404);
 
         $data = [
             'organization' => $org,
-            'packages' => $org ? Package::withoutTenant()->with('items')->where('organization_id', $org->id)->where('is_public', true)->where('is_active', true)->orderBy('sort_order')->get() : collect(),
+            'packages' => collect(),
             'testimonials' => $org ? Testimonial::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->latest()->get() : collect(),
             'portfolio' => $org ? PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
             'faqs' => $org ? Faq::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
-            'team' => $org ? TeamMember::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
         ];
 
-        if ($page === 'production') {
-            $data['productionProjects'] = $org ? ProductionProject::withoutTenant()
-                ->with('images')
-                ->where('organization_id', $org->id)
-                ->where('is_public', true)
-                ->where('is_active', true)
-                ->orderBy('sort_order')
-                ->get() : collect();
+        if ($org) {
+            $data['packages'] = match ($page) {
+                'services' => $this->publicPackages($org->id, 'service'),
+                'packages' => $this->publicPackages($org->id, 'wedding'),
+                'production' => $this->publicPackages($org->id, 'production'),
+                default => collect(),
+            };
+
+            if ($page === 'packages') {
+                $data['addons'] = $this->publicPackages($org->id, 'addon');
+                $data['services'] = $this->publicPackages($org->id, 'service');
+                $data['productionPackages'] = $this->publicPackages($org->id, 'production');
+                $data['productionProjects'] = ProductionProject::withoutTenant()
+                    ->with('images')
+                    ->where('organization_id', $org->id)
+                    ->where('is_public', true)
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->limit(6)
+                    ->get();
+            }
+
+            if ($page === 'production') {
+                $data['productionProjects'] = ProductionProject::withoutTenant()
+                    ->with('images')
+                    ->where('organization_id', $org->id)
+                    ->where('is_public', true)
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->get();
+            }
         }
 
         return view('public.'.$page, $data);
@@ -199,5 +220,17 @@ class WebsiteController extends Controller
         }
 
         return $org;
+    }
+
+    protected function publicPackages(int $organizationId, string $type)
+    {
+        return Package::withoutTenant()
+            ->with(['items', 'images'])
+            ->where('organization_id', $organizationId)
+            ->where('package_type', $type)
+            ->where('is_public', true)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
     }
 }
