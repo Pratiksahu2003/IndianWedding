@@ -2,7 +2,10 @@
 @section('content')
 <section class="mx-auto max-w-6xl px-6 py-20">
     <p class="text-sm uppercase tracking-[0.25em] text-[#9b7b4b]">{{ site('home.feedbacks_kicker') }}</p>
-    <h1 class="mt-4 font-[Cormorant_Garamond] text-5xl">{{ site('home.feedbacks_heading') }}</h1>
+    <h1 class="mt-4 font-[Cormorant_Garamond] text-5xl">{{ site('testimonials.heading', site('home.feedbacks_heading')) }}</h1>
+    @if (site('testimonials.intro'))
+        <p class="mt-4 max-w-2xl text-lg opacity-70">{{ site('testimonials.intro') }}</p>
+    @endif
     <div class="mt-10 grid gap-6 md:grid-cols-2">
         @foreach ($testimonials as $item)
             <blockquote class="rounded-[28px] bg-white p-8">

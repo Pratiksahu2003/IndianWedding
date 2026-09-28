@@ -1,8 +1,8 @@
 @extends('layouts.public')
 @section('content')
 <section class="mx-auto max-w-6xl px-6 py-20">
-    <h1 class="font-[Cormorant_Garamond] text-5xl">{{ site('nav.packages', 'Pricing Page') }}</h1>
-    <p class="mt-4 max-w-2xl text-lg opacity-70">{{ site('services.intro') }}</p>
+    <h1 class="font-[Cormorant_Garamond] text-5xl">{{ site('packages.heading', site('nav.packages', 'Pricing Page')) }}</h1>
+    <p class="mt-4 max-w-2xl text-lg opacity-70">{{ site('packages.intro', site('services.intro')) }}</p>
     <div class="mt-10 grid gap-6 md:grid-cols-3">
         @forelse ($packages as $package)
             <article class="rounded-[28px] bg-white p-8">

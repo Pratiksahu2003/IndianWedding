@@ -13,6 +13,7 @@ use App\Support\SiteCopy;
 use App\Support\SocialPlatforms;
 use App\Support\Tenant;
 use App\Support\WebsiteCmsMenu;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -21,19 +22,20 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 #[Layout('layouts.studio')]
-#[Title('Website content')]
+#[Title('Website CMS')]
 class WebsiteEditor extends Component
 {
     use WithFileUploads;
 
-    /** Main CMS section: content, social, team, testimonials, portfolio, faq */
-    public string $menu = 'content';
+    public string $page = 'global';
 
-    /** Sub-section when menu is content (site content group key) */
-    public string $copyGroup = 'home';
+    public string $section = 'brand';
 
     /** @var array<string, string> */
     public array $fields = [];
+
+    /** @var array<string, TemporaryUploadedFile|null> */
+    public array $imageUploads = [];
 
     public string $team_name = '';
 
@@ -65,12 +67,11 @@ class WebsiteEditor extends Component
         $this->loadFields();
     }
 
-    public function selectMenu(string $menu, ?string $copyGroup = null): void
+    public function selectSection(string $page, string $section): void
     {
-        $this->menu = $menu;
-        if ($menu === 'content' && $copyGroup !== null) {
-            $this->copyGroup = $copyGroup;
-        }
+        $this->page = $page;
+        $this->section = $section;
+        $this->reset('imageUploads');
     }
 
     public function loadFields(): void
@@ -87,16 +88,36 @@ class WebsiteEditor extends Component
     public function saveCopy(): void
     {
         $org = $this->organization();
-        foreach ($this->fields as $key => $value) {
+
+        foreach ($this->imageUploads as $key => $file) {
+            if ($file instanceof TemporaryUploadedFile) {
+                $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
+                $path = $file->storeAs("org/{$org->id}/cms", $filename, 'public');
+                $this->fields[$key] = Storage::disk('public')->url($path);
+            }
+        }
+
+        $pageKeys = SiteContent::withoutTenant()
+            ->where('organization_id', $org->id)
+            ->where('group', $this->contentGroup())
+            ->where('section', $this->section)
+            ->pluck('key');
+
+        foreach ($pageKeys as $key) {
             if (str_starts_with((string) $key, 'social.')) {
                 continue;
             }
+            if (! array_key_exists($key, $this->fields)) {
+                continue;
+            }
             SiteContent::withoutTenant()->where('organization_id', $org->id)->where('key', $key)->update([
-                'value' => $value,
+                'value' => $this->fields[$key],
             ]);
         }
+
         SiteCopy::forget($org->id);
-        session()->flash('status', 'Website copy saved. The public site now shows your words.');
+        $this->reset('imageUploads');
+        session()->flash('status', WebsiteCmsMenu::sectionLabel($this->page, $this->section).' saved.');
     }
 
     public function saveSocial(): void
@@ -130,7 +151,7 @@ class WebsiteEditor extends Component
         }
 
         SiteCopy::forget($org->id);
-        session()->flash('status', 'Social media links saved. Icons appear on the public site when a link is set.');
+        session()->flash('status', 'Social media links saved.');
     }
 
     public function addTeamMember(): void
@@ -223,10 +244,9 @@ class WebsiteEditor extends Component
         if ($uploads !== []) {
             foreach ($uploads as $index => $file) {
                 $sort++;
-                $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
                 $path = $file->storeAs(
                     "org/{$org->id}/portfolio",
-                    $filename,
+                    Str::uuid().'.'.$file->getClientOriginalExtension(),
                     'public',
                 );
 
@@ -294,27 +314,36 @@ class WebsiteEditor extends Component
         $org = $this->organization();
         Tenant::set($org->id);
 
-        $groups = SiteContent::withoutTenant()
+        $activeModule = WebsiteCmsMenu::sectionModule($this->page, $this->section);
+
+        $activeCopyRows = SiteContent::withoutTenant()
             ->where('organization_id', $org->id)
+            ->where('group', $this->contentGroup())
+            ->where('section', $this->section)
             ->orderBy('sort_order')
             ->get()
-            ->reject(fn ($row) => str_starts_with((string) $row->key, 'home.instagram')
-                || str_starts_with((string) $row->key, 'social.'))
-            ->groupBy('group');
+            ->reject(fn ($row) => str_starts_with((string) $row->key, 'social.'));
 
-        $activeCopyRows = $groups->get($this->copyGroup, collect());
+        $currentPage = collect(WebsiteCmsMenu::pages())->firstWhere('id', $this->page);
 
         return view('livewire.platform.website-editor', [
-            'groups' => $groups,
+            'cmsPages' => WebsiteCmsMenu::pages(),
+            'currentPage' => $currentPage,
             'activeCopyRows' => $activeCopyRows,
-            'cmsMenu' => WebsiteCmsMenu::tree(),
-            'copyGroupLabel' => WebsiteCmsMenu::copyGroupLabel($this->copyGroup),
+            'activeModule' => $activeModule,
+            'pageLabel' => WebsiteCmsMenu::pageLabel($this->page),
+            'sectionLabel' => WebsiteCmsMenu::sectionLabel($this->page, $this->section),
             'team' => TeamMember::query()->orderBy('sort_order')->get(),
             'testimonials' => Testimonial::query()->latest()->get(),
             'faqs' => Faq::query()->orderBy('sort_order')->get(),
             'portfolio' => PortfolioItem::query()->orderBy('sort_order')->get(),
             'packages' => Package::query()->orderBy('sort_order')->get(),
         ]);
+    }
+
+    protected function contentGroup(): string
+    {
+        return $this->page === 'global' ? $this->section : $this->page;
     }
 
     protected function organization(): Organization

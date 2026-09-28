@@ -41,7 +41,7 @@
         ],
         'Studio' => [
             ['app.packages.index', 'Services', 'packages', 'app.packages.*'],
-            ['app.website', 'Website', 'website', 'app.website'],
+            ['app.website', 'Website CMS', 'website', 'app.website'],
             ['app.settings.index', 'Studio profile', 'settings', 'app.settings.index'],
             ['app.settings.payments', 'Payment gateway', 'payments', 'app.settings.payments', 'settings.manage'],
             ['app.settings.email', 'Email / SMTP', 'mail', 'app.settings.email', 'settings.manage'],
@@ -127,7 +127,7 @@
                     </button>
                     <div x-show="userMenu" x-cloak @click.outside="userMenu=false" class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5">
                         <a href="{{ route('app.settings.index') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Settings</a>
-                        <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website content</a>
+                        <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website CMS</a>
                         @if ($role === \App\Enums\Role::Client)
                             <a href="{{ route('client.dashboard') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Client view</a>
                         @endif
