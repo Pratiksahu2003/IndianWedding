@@ -49,8 +49,6 @@
 @endphp
 
 <div class="mx-auto max-w-[1400px] space-y-8">
-    <x-swal-flash />
-
     {{-- Welcome hero --}}
     <section class="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#16120f] via-[#1c1712] to-[#2a2218] px-6 py-7 text-[#f6f1ea] shadow-xl md:px-8 md:py-9">
         <div class="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-[#c4a574]/10 blur-3xl"></div>
@@ -155,8 +153,8 @@
         <div class="dash-card p-6 xl:col-span-7">
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <p class="dash-section-title">Production</p>
-                    <h2 class="mt-1 font-[Cormorant_Garamond] text-2xl text-[#16120f]">Projects by stage</h2>
+                    <p class="dash-section-title">Operations</p>
+                    <h2 class="mt-1 font-[Cormorant_Garamond] text-2xl text-[#16120f]">Wedding projects by stage</h2>
                 </div>
                 <a href="{{ route('app.projects.index') }}" class="rounded-full bg-[#f6f1ea] px-4 py-1.5 text-sm font-medium text-[#9b7b4b] transition hover:bg-[#ebe4d8]">
                     All projects

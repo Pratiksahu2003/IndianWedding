@@ -11,12 +11,10 @@
 @endphp
 
 <div class="mx-auto max-w-5xl space-y-10">
-    <x-swal-flash />
-
     <section class="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-white/[0.08] to-white/[0.02] px-6 py-8 ring-1 ring-white/10 md:px-8">
         <div class="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#c4a574]/10 blur-3xl"></div>
         <p class="text-xs font-semibold uppercase tracking-[0.25em] text-[#c4a574]">Your wedding portal</p>
-        <h1 class="mt-3 font-[Cormorant_Garamond] text-4xl md:text-5xl">{{ $customer->name }}</h1>
+        <h1 class="mt-3 font-[Cormorant_Garamond] text-4xl md:text-5xl">{{ $customer?->name ?? auth()->user()->name }}</h1>
 
         @if ($project)
             <p class="mt-4 text-white/65">

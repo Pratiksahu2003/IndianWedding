@@ -1,8 +1,11 @@
 <?php
 
+use App\Enums\Role;
 use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureStudioStaff;
 use App\Http\Middleware\SetCurrentOrganization;
+use App\Support\Tenant;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,9 +23,21 @@ return Application::configure(basePath: dirname(__DIR__))
             'tenant' => SetCurrentOrganization::class,
             'role' => EnsureRole::class,
             'permission' => EnsurePermission::class,
+            'studio.staff' => EnsureStudioStaff::class,
         ]);
         $middleware->redirectGuestsTo('/login');
-        $middleware->redirectUsersTo('/app');
+        $middleware->redirectUsersTo(function (Request $request) {
+            $user = $request->user();
+            if (! $user) {
+                return '/app';
+            }
+
+            if (! Tenant::id()) {
+                Tenant::set(Tenant::soleOrganizationId());
+            }
+
+            return $user->roleIn(Tenant::current()) === Role::Client ? '/client' : '/app';
+        });
         $middleware->validateCsrfTokens(except: [
             'webhooks/*',
         ]);

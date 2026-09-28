@@ -105,7 +105,7 @@ Route::middleware(['auth', 'tenant'])->group(function () {
     Route::get('/files/{file}', [FileAccessController::class, 'show'])->name('files.show');
     Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
 
-    Route::prefix('app')->name('app.')->group(function () {
+    Route::prefix('app')->name('app.')->middleware('studio.staff')->group(function () {
         Route::get('/', StudioDashboard::class)->name('dashboard');
         Route::get('/leads', LeadsIndex::class)->name('leads.index');
         Route::get('/leads/pipeline', LeadsPipeline::class)->name('leads.pipeline');

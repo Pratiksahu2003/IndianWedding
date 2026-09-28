@@ -17,6 +17,20 @@ class Search extends Component
 
     public function render()
     {
+        $user = auth()->user();
+        $empty = [
+            'leads' => collect(),
+            'clients' => collect(),
+            'projects' => collect(),
+            'invoices' => collect(),
+            'payments' => collect(),
+            'files' => collect(),
+        ];
+
+        if (! $user?->roleIn()?->isStaff() && ! $user?->hasFullStudioAccess()) {
+            return view('livewire.studio.search', ['results' => $empty]);
+        }
+
         $q = trim($this->q);
         $results = [
             'leads' => $q ? Lead::query()->where(function ($query) use ($q) {

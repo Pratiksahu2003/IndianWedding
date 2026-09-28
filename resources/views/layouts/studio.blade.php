@@ -18,7 +18,7 @@
     $nav = [
         'Overview' => [
             ['app.dashboard', 'Dashboard', 'home', 'app.dashboard'],
-            ['app.reports.index', 'Reports', 'reports', 'app.reports.*'],
+            ['app.reports.index', 'Reports', 'reports', 'app.reports.*', 'reports.view'],
             ['app.calendar', 'Calendar', 'calendar', 'app.calendar'],
         ],
         'Pipeline' => [
@@ -43,7 +43,7 @@
             ['app.packages.index', 'Packages & services', 'packages', 'app.packages.*'],
         ],
         'Production' => [
-            ['app.production.index', 'All projects', 'gallery', 'app.production.*'],
+            ['app.production.index', 'Creative projects', 'packages', 'app.production.*'],
         ],
         'Studio' => [
             ['app.website', 'Website CMS', 'website', 'app.website'],
@@ -134,9 +134,6 @@
                         <a href="{{ route('profile.edit') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">My profile</a>
                         <a href="{{ route('app.settings.index') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Settings</a>
                         <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website CMS</a>
-                        @if ($role === \App\Enums\Role::Client)
-                            <a href="{{ route('client.dashboard') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Client view</a>
-                        @endif
                         <form method="POST" action="{{ route('logout') }}">@csrf<button class="w-full px-4 py-2.5 text-left hover:bg-[#f6f1ea]">Sign out</button></form>
                     </div>
                 </div>
