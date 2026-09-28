@@ -61,4 +61,14 @@ class Package extends Model
     {
         return url('/services/'.$this->slug);
     }
+
+    public function youtubeEmbedUrl(): ?string
+    {
+        return \App\Support\YoutubeEmbed::embedUrl($this->youtube_url);
+    }
+
+    public function hasYoutubeVideo(): bool
+    {
+        return $this->youtubeEmbedUrl() !== null;
+    }
 }

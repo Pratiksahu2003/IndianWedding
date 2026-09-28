@@ -29,6 +29,13 @@
                     @endforeach
                 </div>
             @endif
+            @if ($package->hasYoutubeVideo())
+                <div class="mt-10">
+                    <h2 class="font-[Cormorant_Garamond] text-3xl">Watch this service</h2>
+                    <p class="mt-2 text-sm text-[#16120f]/60">A glimpse of what we deliver for {{ $package->name }}.</p>
+                    <x-youtube-embed :url="$package->youtube_url" :title="$package->name" class="mt-6" />
+                </div>
+            @endif
             @if ($package->items->isNotEmpty())
                 <h2 class="mt-12 font-[Cormorant_Garamond] text-3xl">What’s included</h2>
                 <ul class="mt-6 grid gap-3">

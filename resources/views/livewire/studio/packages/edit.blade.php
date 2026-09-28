@@ -27,6 +27,23 @@
             <div class="sm:col-span-2">
                 <x-studio.rich-textarea model="description" :rows="5" />
             </div>
+            <div class="sm:col-span-2">
+                <label class="mb-1.5 block text-sm font-medium text-[#16120f]/80">YouTube video link</label>
+                <input
+                    type="url"
+                    wire:model.live.debounce.500ms="youtube_url"
+                    placeholder="https://youtube.com/watch?v=… or https://youtu.be/…"
+                    class="w-full rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm"
+                >
+                <p class="mt-1.5 text-xs text-[#16120f]/50">Optional. Paste any normal YouTube URL — it will play embedded on the public service page.</p>
+                @error('youtube_url') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror
+                @if ($youtube_url && \App\Support\YoutubeEmbed::embedUrl($youtube_url))
+                    <div class="mt-4 max-w-xl">
+                        <p class="mb-2 text-xs font-medium uppercase tracking-[0.14em] text-[#16120f]/40">Preview</p>
+                        <x-youtube-embed :url="$youtube_url" :title="$name ?: $package->name" class="rounded-2xl" />
+                    </div>
+                @endif
+            </div>
         </div>
 
         <div class="mt-6 space-y-4 border-t border-black/5 pt-6">

@@ -5,6 +5,7 @@ namespace App\Livewire\Studio\Packages;
 use App\Models\Package;
 use App\Support\Money;
 use App\Support\Tenant;
+use App\Support\YoutubeEmbed;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -36,6 +37,8 @@ class Create extends Component
 
     public string $description = '';
 
+    public string $youtube_url = '';
+
     public function save()
     {
         $this->authorize('create', Package::class);
@@ -52,10 +55,16 @@ class Create extends Component
             'includes_pre_wedding' => ['boolean'],
             'includes_drone' => ['boolean'],
             'description' => ['nullable', 'string'],
+            'youtube_url' => ['nullable', 'string', 'max:500', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! YoutubeEmbed::isValid($value)) {
+                    $fail('Enter a valid YouTube link (watch, youtu.be, or shorts URL).');
+                }
+            }],
         ]);
 
         Package::query()->create([
             ...$data,
+            'youtube_url' => trim($this->youtube_url) ?: null,
             'price' => Money::fromMajor($this->price),
             'organization_id' => Tenant::requireId(),
             'slug' => Str::slug($this->name).'-'.Str::lower(Str::random(4)),

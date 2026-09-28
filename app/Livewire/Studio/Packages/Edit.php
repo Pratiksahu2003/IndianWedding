@@ -4,6 +4,7 @@ namespace App\Livewire\Studio\Packages;
 
 use App\Models\Package;
 use App\Support\Money;
+use App\Support\YoutubeEmbed;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -41,6 +42,8 @@ class Edit extends Component
 
     public string $description = '';
 
+    public string $youtube_url = '';
+
     /** @var array<int, TemporaryUploadedFile> */
     public array $newImages = [];
 
@@ -59,6 +62,7 @@ class Edit extends Component
         $this->includes_pre_wedding = (bool) $package->includes_pre_wedding;
         $this->includes_drone = (bool) $package->includes_drone;
         $this->description = $package->description ?? '';
+        $this->youtube_url = $package->youtube_url ?? '';
     }
 
     public function uploadImages(): void
@@ -127,10 +131,16 @@ class Edit extends Component
             'includes_pre_wedding' => ['boolean'],
             'includes_drone' => ['boolean'],
             'description' => ['nullable', 'string'],
+            'youtube_url' => ['nullable', 'string', 'max:500', function (string $attribute, mixed $value, \Closure $fail): void {
+                if (! YoutubeEmbed::isValid($value)) {
+                    $fail('Enter a valid YouTube link (watch, youtu.be, or shorts URL).');
+                }
+            }],
         ]);
 
         $this->package->update([
             ...$data,
+            'youtube_url' => trim($this->youtube_url) ?: null,
             'price' => Money::fromMajor($this->price),
         ]);
 
