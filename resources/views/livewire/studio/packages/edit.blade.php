@@ -12,24 +12,14 @@
 
     <form wire:submit="save" class="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-black/5 sm:p-8">
         <div class="grid gap-3 sm:grid-cols-2">
-            <select wire:model="package_type" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm sm:col-span-2">
-                <option value="service">Service (photography / cinematography)</option>
-                <option value="wedding">Wedding package (Silver, Gold, etc.)</option>
-                <option value="production">Production package (music video, films, etc.)</option>
-                <option value="addon">Wedding add-on</option>
-            </select>
+            @include('livewire.studio.packages.partials.type-select')
             <input wire:model="name" placeholder="Name *" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm sm:col-span-2">
             <input type="number" wire:model="price" placeholder="Price (₹)" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm">
             <input type="number" wire:model="duration_hours" placeholder="Duration (hours)" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm">
             <input type="number" wire:model="photographer_count" placeholder="Photographers" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm">
             <input type="number" wire:model="videographer_count" placeholder="Videographers" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm">
             <input type="number" wire:model="edited_photos" placeholder="Edited photos" class="rounded-2xl bg-[#f6f1ea] px-4 py-3 text-sm sm:col-span-2">
-            <div class="flex flex-wrap gap-4 text-sm sm:col-span-2">
-                <label class="inline-flex items-center gap-2"><input type="checkbox" wire:model="includes_album" class="rounded"> Album</label>
-                <label class="inline-flex items-center gap-2"><input type="checkbox" wire:model="includes_video" class="rounded"> Video</label>
-                <label class="inline-flex items-center gap-2"><input type="checkbox" wire:model="includes_pre_wedding" class="rounded"> Pre-wedding</label>
-                <label class="inline-flex items-center gap-2"><input type="checkbox" wire:model="includes_drone" class="rounded"> Drone</label>
-            </div>
+            @include('livewire.studio.packages.partials.include-options')
             <div class="sm:col-span-2">
                 <x-studio.rich-textarea model="description" :rows="5" />
             </div>

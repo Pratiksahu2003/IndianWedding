@@ -23,6 +23,12 @@ class Package extends Model
             'includes_video' => 'boolean',
             'includes_pre_wedding' => 'boolean',
             'includes_drone' => 'boolean',
+            'includes_candid' => 'boolean',
+            'includes_instagram_reels' => 'boolean',
+            'includes_same_day_edit' => 'boolean',
+            'includes_live_streaming' => 'boolean',
+            'includes_invitation_video' => 'boolean',
+            'includes_destination' => 'boolean',
             'additional_services' => 'array',
             'is_public' => 'boolean',
             'is_active' => 'boolean',
@@ -59,8 +65,8 @@ class Package extends Model
 
     public function publicUrl(): string
     {
-        return match ($this->package_type) {
-            'wedding' => url('/packages/'.$this->slug),
+        return match (\App\Support\PackageOptions::listingPageForType($this->package_type ?? 'service')) {
+            'packages' => url('/packages/'.$this->slug),
             'production' => url('/services/'.$this->slug),
             default => url('/services/'.$this->slug),
         };
@@ -68,12 +74,21 @@ class Package extends Model
 
     public function typeLabel(): string
     {
-        return match ($this->package_type) {
-            'wedding' => 'Wedding package',
-            'production' => 'Production package',
-            'addon' => 'Add-on',
-            default => 'Service',
-        };
+        return \App\Support\PackageOptions::typeLabel($this->package_type ?? 'service');
+    }
+
+    /** @return list<string> */
+    public function activeIncludes(): array
+    {
+        $active = [];
+
+        foreach (\App\Support\PackageOptions::includes() as $key => $label) {
+            if ($this->{$key}) {
+                $active[] = $label;
+            }
+        }
+
+        return $active;
     }
 
     public function scopeOfType($query, string $type)

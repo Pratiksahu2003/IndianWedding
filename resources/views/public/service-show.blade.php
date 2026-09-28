@@ -60,10 +60,9 @@
                 <li>{{ $package->photographer_count }} photographer{{ $package->photographer_count != 1 ? 's' : '' }}</li>
                 <li>{{ $package->videographer_count }} videographer{{ $package->videographer_count != 1 ? 's' : '' }}</li>
                 <li>{{ $package->edited_photos }} edited photos</li>
-                @if ($package->includes_album)<li>Premium album</li>@endif
-                @if ($package->includes_video)<li>Cinematic film</li>@endif
-                @if ($package->includes_pre_wedding)<li>Pre-wedding session</li>@endif
-                @if ($package->includes_drone)<li>Drone coverage</li>@endif
+                @foreach ($package->activeIncludes() as $include)
+                    <li>{{ $include }}</li>
+                @endforeach
             </ul>
             <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'MAKE RESERVATION') }}</a>
             <a href="/packages" class="mt-3 inline-block w-full text-center text-sm text-[#9b7b4b]">View pricing page</a>

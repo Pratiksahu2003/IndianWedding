@@ -9,6 +9,7 @@ use App\Models\Package;
 use App\Models\PortfolioItem;
 use App\Models\ProductionProject;
 use App\Models\Testimonial;
+use App\Support\PackageOptions;
 use App\Support\Tenant;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -21,7 +22,7 @@ class WebsiteController extends Controller
 
         return view('public.home', [
             'organization' => $org,
-            'packages' => $org ? $this->publicPackages($org->id, 'service')->take(6) : collect(),
+            'packages' => $org ? $this->publicPackagesForPage($org->id, 'services')->take(6) : collect(),
             'testimonials' => $org ? Testimonial::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->latest()->limit(6)->get() : collect(),
             'portfolio' => $org ? PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->limit(12)->get() : collect(),
         ]);
@@ -42,16 +43,14 @@ class WebsiteController extends Controller
 
         if ($org) {
             $data['packages'] = match ($page) {
-                'services' => $this->publicPackages($org->id, 'service'),
-                'packages' => $this->publicPackages($org->id, 'wedding'),
-                'production' => $this->publicPackages($org->id, 'production'),
+                'services', 'packages', 'production' => $this->publicPackagesForPage($org->id, $page),
                 default => collect(),
             };
 
             if ($page === 'packages') {
                 $data['addons'] = $this->publicPackages($org->id, 'addon');
-                $data['services'] = $this->publicPackages($org->id, 'service');
-                $data['productionPackages'] = $this->publicPackages($org->id, 'production');
+                $data['services'] = $this->publicPackagesForPage($org->id, 'services');
+                $data['productionPackages'] = $this->publicPackagesForPage($org->id, 'production');
                 $data['productionProjects'] = ProductionProject::withoutTenant()
                     ->with('images')
                     ->where('organization_id', $org->id)
@@ -228,6 +227,24 @@ class WebsiteController extends Controller
             ->with(['items', 'images'])
             ->where('organization_id', $organizationId)
             ->where('package_type', $type)
+            ->where('is_public', true)
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    protected function publicPackagesForPage(int $organizationId, string $page)
+    {
+        $types = PackageOptions::typesForPublicPage($page);
+
+        if ($types === []) {
+            return collect();
+        }
+
+        return Package::withoutTenant()
+            ->with(['items', 'images'])
+            ->where('organization_id', $organizationId)
+            ->whereIn('package_type', $types)
             ->where('is_public', true)
             ->where('is_active', true)
             ->orderBy('sort_order')

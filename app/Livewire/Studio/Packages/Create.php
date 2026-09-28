@@ -3,8 +3,11 @@
 namespace App\Livewire\Studio\Packages;
 
 use App\Livewire\Studio\Packages\Concerns\ManagesPackageFeatures;
+use App\Livewire\Studio\Packages\Concerns\ManagesPackageIncludes;
 use App\Models\Package;
 use App\Support\Money;
+use App\Support\PackageOptions;
+use Illuminate\Validation\Rule;
 use App\Support\Tenant;
 use App\Support\YoutubeEmbed;
 use Illuminate\Support\Str;
@@ -16,7 +19,7 @@ use Livewire\Component;
 #[Title('New service')]
 class Create extends Component
 {
-    use ManagesPackageFeatures;
+    use ManagesPackageFeatures, ManagesPackageIncludes;
 
     public string $package_type = 'service';
 
@@ -32,14 +35,6 @@ class Create extends Component
 
     public int $edited_photos = 200;
 
-    public bool $includes_album = true;
-
-    public bool $includes_video = false;
-
-    public bool $includes_pre_wedding = false;
-
-    public bool $includes_drone = false;
-
     public string $description = '';
 
     public string $youtube_url = '';
@@ -49,17 +44,14 @@ class Create extends Component
         $this->authorize('create', Package::class);
 
         $data = $this->validate([
-            'package_type' => ['required', 'in:service,wedding,production,addon'],
+            'package_type' => ['required', Rule::in(PackageOptions::typeKeys())],
             'name' => ['required', 'string', 'max:120'],
             'price' => ['required', 'integer', 'min:0'],
             'duration_hours' => ['required', 'integer', 'min:1'],
             'photographer_count' => ['required', 'integer', 'min:0'],
             'videographer_count' => ['required', 'integer', 'min:0'],
             'edited_photos' => ['required', 'integer', 'min:0'],
-            'includes_album' => ['boolean'],
-            'includes_video' => ['boolean'],
-            'includes_pre_wedding' => ['boolean'],
-            'includes_drone' => ['boolean'],
+            ...$this->includeValidationRules(),
             'description' => ['nullable', 'string'],
             'youtube_url' => ['nullable', 'string', 'max:500', function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! YoutubeEmbed::isValid($value)) {

@@ -3,8 +3,11 @@
 namespace App\Livewire\Studio\Packages;
 
 use App\Livewire\Studio\Packages\Concerns\ManagesPackageFeatures;
+use App\Livewire\Studio\Packages\Concerns\ManagesPackageIncludes;
 use App\Models\Package;
 use App\Support\Money;
+use App\Support\PackageOptions;
+use Illuminate\Validation\Rule;
 use App\Support\YoutubeEmbed;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
@@ -17,7 +20,7 @@ use Livewire\WithFileUploads;
 #[Title('Edit service')]
 class Edit extends Component
 {
-    use ManagesPackageFeatures, WithFileUploads;
+    use ManagesPackageFeatures, ManagesPackageIncludes, WithFileUploads;
 
     public Package $package;
 
@@ -34,14 +37,6 @@ class Edit extends Component
     public int $videographer_count = 0;
 
     public int $edited_photos = 200;
-
-    public bool $includes_album = true;
-
-    public bool $includes_video = false;
-
-    public bool $includes_pre_wedding = false;
-
-    public bool $includes_drone = false;
 
     public string $description = '';
 
@@ -62,10 +57,7 @@ class Edit extends Component
         $this->photographer_count = $package->photographer_count ?? 1;
         $this->videographer_count = $package->videographer_count ?? 0;
         $this->edited_photos = $package->edited_photos ?? 200;
-        $this->includes_album = (bool) $package->includes_album;
-        $this->includes_video = (bool) $package->includes_video;
-        $this->includes_pre_wedding = (bool) $package->includes_pre_wedding;
-        $this->includes_drone = (bool) $package->includes_drone;
+        $this->loadIncludesFromPackage($package);
         $this->description = $package->description ?? '';
         $this->youtube_url = $package->youtube_url ?? '';
     }
@@ -125,17 +117,14 @@ class Edit extends Component
         $this->authorize('update', $this->package);
 
         $data = $this->validate([
-            'package_type' => ['required', 'in:service,wedding,production,addon'],
+            'package_type' => ['required', Rule::in(PackageOptions::typeKeys())],
             'name' => ['required', 'string', 'max:120'],
             'price' => ['required', 'integer', 'min:0'],
             'duration_hours' => ['required', 'integer', 'min:1'],
             'photographer_count' => ['required', 'integer', 'min:0'],
             'videographer_count' => ['required', 'integer', 'min:0'],
             'edited_photos' => ['required', 'integer', 'min:0'],
-            'includes_album' => ['boolean'],
-            'includes_video' => ['boolean'],
-            'includes_pre_wedding' => ['boolean'],
-            'includes_drone' => ['boolean'],
+            ...$this->includeValidationRules(),
             'description' => ['nullable', 'string'],
             'youtube_url' => ['nullable', 'string', 'max:500', function (string $attribute, mixed $value, \Closure $fail): void {
                 if (! YoutubeEmbed::isValid($value)) {

@@ -7,8 +7,9 @@
     </div>
 
     <div class="flex flex-wrap gap-2">
-        @foreach (['all' => 'All', 'service' => 'Services', 'wedding' => 'Wedding', 'production' => 'Production', 'addon' => 'Add-ons'] as $key => $label)
-            <button type="button" wire:click="$set('filter', '{{ $key }}')" class="rounded-full px-4 py-2 text-sm transition {{ $filter === $key ? 'bg-[#16120f] text-white' : 'bg-white text-[#16120f]/70 ring-1 ring-black/10' }}">{{ $label }}</button>
+        <button type="button" wire:click="$set('filter', 'all')" class="rounded-full px-4 py-2 text-sm transition {{ $filter === 'all' ? 'bg-[#16120f] text-white' : 'bg-white text-[#16120f]/70 ring-1 ring-black/10' }}">All</button>
+        @foreach (\App\Support\PackageOptions::types() as $key => $label)
+            <button type="button" wire:click="$set('filter', '{{ $key }}')" class="rounded-full px-4 py-2 text-sm transition {{ $filter === $key ? 'bg-[#16120f] text-white' : 'bg-white text-[#16120f]/70 ring-1 ring-black/10' }}">{{ \Illuminate\Support\Str::before($label, ' (') ?: $label }}</button>
         @endforeach
     </div>
 
@@ -26,7 +27,7 @@
                         @else
                             <p class="mt-1 text-sm opacity-70">Custom pricing</p>
                         @endif
-                        <p class="mt-1 text-xs opacity-50">{{ $package->items->count() }} features</p>
+                        <p class="mt-1 text-xs opacity-50">{{ $package->items->count() }} features · {{ count($package->activeIncludes()) }} includes</p>
                         @if ($package->is_public)
                             <a class="mt-2 inline-block text-xs text-[#9b7b4b]" href="{{ $package->publicUrl() }}" target="_blank">Public page</a>
                         @endif
