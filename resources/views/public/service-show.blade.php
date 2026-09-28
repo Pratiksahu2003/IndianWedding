@@ -29,6 +29,13 @@
                     @endforeach
                 </div>
             @endif
+            @if ($package->hasYoutubeVideo())
+                <div class="mt-10">
+                    <h2 class="font-[Cormorant_Garamond] text-3xl">Watch this service</h2>
+                    <p class="mt-2 text-sm text-[#16120f]/60">A glimpse of what we deliver for {{ $package->name }}.</p>
+                    <x-youtube-embed :url="$package->youtube_url" :title="$package->name" class="mt-6" />
+                </div>
+            @endif
             @if ($package->items->isNotEmpty())
                 <h2 class="mt-12 font-[Cormorant_Garamond] text-3xl">What’s included</h2>
                 <ul class="mt-6 grid gap-3">
@@ -53,12 +60,11 @@
                 <li>{{ $package->photographer_count }} photographer{{ $package->photographer_count != 1 ? 's' : '' }}</li>
                 <li>{{ $package->videographer_count }} videographer{{ $package->videographer_count != 1 ? 's' : '' }}</li>
                 <li>{{ $package->edited_photos }} edited photos</li>
-                @if ($package->includes_album)<li>Premium album</li>@endif
-                @if ($package->includes_video)<li>Cinematic film</li>@endif
-                @if ($package->includes_pre_wedding)<li>Pre-wedding session</li>@endif
-                @if ($package->includes_drone)<li>Drone coverage</li>@endif
+                @foreach ($package->activeIncludes() as $include)
+                    <li>{{ $include }}</li>
+                @endforeach
             </ul>
-            <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'MAKE RESERVATION') }}</a>
+            <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'BOOK CONSULTANT') }}</a>
             <a href="/packages" class="mt-3 inline-block w-full text-center text-sm text-[#9b7b4b]">View pricing page</a>
         </aside>
     </section>

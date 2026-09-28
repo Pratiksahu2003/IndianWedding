@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Client;
 
-use App\Models\Customer;
+use App\Support\ClientPortal;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -13,11 +13,15 @@ class Payments extends Component
 {
     public function render()
     {
-        $customer = Customer::query()->where('user_id', auth()->id())->firstOrFail();
+        $customer = ClientPortal::customer();
 
         return view('livewire.client.payments', [
-            'invoices' => $customer->projects()->with('invoices.items')->get()->pluck('invoices')->flatten(),
-            'milestones' => $customer->projects()->with('paymentMilestones')->get()->pluck('paymentMilestones')->flatten(),
+            'invoices' => $customer
+                ? $customer->projects()->with('invoices.items')->get()->pluck('invoices')->flatten()
+                : collect(),
+            'milestones' => $customer
+                ? $customer->projects()->with('paymentMilestones')->get()->pluck('paymentMilestones')->flatten()
+                : collect(),
         ]);
     }
 }

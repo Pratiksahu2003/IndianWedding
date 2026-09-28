@@ -8,7 +8,6 @@ use App\Models\Package;
 use App\Models\PackageItem;
 use App\Models\PortfolioItem;
 use App\Models\SiteContent;
-use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\SiteCopy;
 use App\Support\Tenant;
@@ -49,24 +48,6 @@ class UnikStudioContentSeeder extends Seeder
             );
         }
         SiteCopy::forget($org->id);
-
-        TeamMember::withoutTenant()->where('organization_id', $org->id)->delete();
-        foreach ([
-            ['Matthew Taylor', 'Founder & CEO'],
-            ['Louisa Abadie', 'Writer, Photographer'],
-            ['Amelia Harper', 'Photographer, Manager'],
-            ['Mike Johnson', 'Writer, Manager'],
-            ['Harper Wilson', 'Photographer, Manager'],
-            ['Nicholas White', 'Photographer, Manager'],
-        ] as $i => [$name, $role]) {
-            TeamMember::query()->create([
-                'organization_id' => $org->id,
-                'name' => $name,
-                'role' => $role,
-                'is_published' => true,
-                'sort_order' => $i,
-            ]);
-        }
 
         Testimonial::withoutTenant()->where('organization_id', $org->id)->delete();
         foreach ([
@@ -169,10 +150,9 @@ class UnikStudioContentSeeder extends Seeder
             $i('brand', 'brand.tagline', 'Tagline', 'Capturing Moments, Creating Memories', 'input'),
             $i('nav', 'nav.home', 'Nav: Home', 'Home', 'input'),
             $i('nav', 'nav.about', 'Nav: About', 'About', 'input'),
-            $i('nav', 'nav.team', 'Nav: Our Team', 'Our Team', 'input'),
             $i('nav', 'nav.services', 'Nav: Service', 'Service', 'input'),
             $i('nav', 'nav.packages', 'Nav: Pricing', 'Pricing Page', 'input'),
-            $i('nav', 'nav.reservation', 'Nav: Reservation', 'Make Reservation', 'input'),
+            $i('nav', 'nav.reservation', 'Nav: Book consultant', 'Book Consultant', 'input'),
             $i('nav', 'nav.gallery', 'Nav: Gallery', 'Gallery', 'input'),
             $i('nav', 'nav.contact', 'Nav: Contact', 'Contact', 'input'),
             $i('nav', 'nav.testimonials', 'Nav: Feedbacks', 'Feedbacks', 'input'),
@@ -183,11 +163,11 @@ class UnikStudioContentSeeder extends Seeder
             $i('home', 'home.hero_image', 'Hero background image URL', UnikStudioAssets::url('hero-slide.png'), 'input'),
             $i('home', 'home.kicker', 'Hero kicker', 'Are getting married! Save the date:'),
             $i('home', 'home.headline', 'Hero headline', 'Capturing Moments, Creating Memories'),
-            $i('home', 'home.cta', 'Hero button', 'MAKE RESERVATION', 'input'),
+            $i('home', 'home.cta', 'Hero button', 'BOOK CONSULTANT', 'input'),
             $i('home', 'home.story_kicker', 'Story kicker', 'Unik Studio'),
             $i('home', 'home.story_heading', 'Story heading', 'OUR WEDDING STORY TO DATE'),
             $i('home', 'home.story_body', 'Story body', "Welcome to Unik Studio, your one-stop destination for premium photography and cinematography services. We specialize in turning your special occasions into timeless memories with creativity, passion, and professional expertise. Whether it’s a wedding, pre-wedding, birthday, or a music video shoot, our team ensures every frame tells a beautiful story."),
-            $i('home', 'home.story_cta', 'Story button', 'MAKE RESERVATION', 'input'),
+            $i('home', 'home.story_cta', 'Story button', 'BOOK CONSULTANT', 'input'),
             $i('home', 'home.services_kicker', 'Services kicker', 'Our Services'),
             $i('home', 'home.services_heading', 'Services heading', 'Our Services'),
             $i('home', 'home.moments_kicker', 'Counters kicker', 'ENJOY OUR MOMENTS'),
@@ -210,7 +190,7 @@ class UnikStudioContentSeeder extends Seeder
             $i('home', 'home.portfolio_heading', 'Portfolio heading', 'WELCOME TO OUR PRE WEDDING & WEDDING'),
             $i('home', 'home.rsvp_kicker', 'RSVP kicker', 'LET US KNOW IF YOU COMING'),
             $i('home', 'home.rsvp_heading', 'RSVP heading', 'WE CANT WAIT TO SEE YOU!'),
-            $i('home', 'home.rsvp_cta', 'RSVP button', 'MAKE RESERVATION', 'input'),
+            $i('home', 'home.rsvp_cta', 'RSVP button', 'BOOK CONSULTANT', 'input'),
             $i('home', 'home.feedbacks_kicker', 'Testimonials kicker', 'FEEDBACKS'),
             $i('home', 'home.feedbacks_heading', 'Testimonials heading', 'Our Testimonials'),
             $i('home', 'home.instagram_handle', 'Instagram handle', '@unik_studioo', 'input'),
@@ -226,8 +206,6 @@ class UnikStudioContentSeeder extends Seeder
             $i('about', 'about.values_heading', 'Values heading', 'OUR CORE VALUES'),
             $i('about', 'about.mission', 'Mission', 'Our mission is to capture emotions, moments, and memories in their purest form. We aim to turn every special occasion into a visual masterpiece that our clients can cherish for a lifetime.'),
             $i('about', 'about.vision', 'Vision', 'At Unik Studio, our destination is not just about reaching the top, but about creating a legacy in the world of photography and cinematography. We envision a future where every celebration, every milestone, and every story is captured with creativity, precision, and heartfelt emotions.'),
-            $i('about', 'about.team_heading', 'Team heading', 'Our Team'),
-
             $i('services', 'services.eyebrow', 'Services email line', 'wedding@unikstudio.in', 'input'),
             $i('services', 'services.heading', 'Services heading', 'Our Services'),
             $i('services', 'services.intro', 'Services intro', 'At Unik Studio, we offer a wide range of professional photography and cinematography services designed to make your moments unforgettable. From weddings to birthdays and even music video productions, our team ensures every detail is captured with perfection.'),
@@ -254,7 +232,7 @@ class UnikStudioContentSeeder extends Seeder
             $i('contact', 'contact.subscribe_heading', 'Subscribe heading', 'Subscribe Now'),
             $i('contact', 'contact.subscribe_note', 'Subscribe note', 'Don’t worry we don’t spam your email'),
 
-            $i('reservation', 'reservation.heading', 'Reservation heading', 'Make Reservation'),
+            $i('reservation', 'reservation.heading', 'Book consultant heading', 'Book Consultant'),
             $i('reservation', 'reservation.body', 'Reservation intro', 'LET US KNOW IF YOU COMING. WE CANT WAIT TO SEE YOU! Book your slot now for best Cinematography & Photography.'),
 
             $i('social', 'social.instagram', 'Instagram URL', 'https://instagram.com/unik_studioo', 'input'),

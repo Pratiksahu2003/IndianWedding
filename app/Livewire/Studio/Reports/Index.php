@@ -16,8 +16,15 @@ use Livewire\Component;
 #[Title('Reports')]
 class Index extends Component
 {
+    public function mount(): void
+    {
+        abort_unless(auth()->user()?->canInOrganization('reports.view'), 403);
+    }
+
     public function exportLeads()
     {
+        abort_unless(auth()->user()?->canInOrganization('reports.view'), 403);
+
         $rows = Lead::query()->get(['lead_number', 'name', 'email', 'phone', 'status', 'city', 'wedding_date']);
         $csv = "Number,Name,Email,Phone,Status,City,Wedding Date\n";
         foreach ($rows as $row) {

@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Client;
 
-use App\Models\Customer;
 use App\Models\Project as WeddingProject;
+use App\Support\ClientPortal;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -15,8 +15,8 @@ class ProjectShow extends Component
     public function mount(WeddingProject $project): void
     {
         $this->authorize('view', $project);
-        $customer = Customer::query()->where('user_id', auth()->id())->firstOrFail();
-        abort_unless($project->customer_id === $customer->id, 403);
+        $customer = ClientPortal::customer();
+        abort_unless($customer && $project->customer_id === $customer->id, 403);
         $this->project = $project->load(['package', 'events', 'paymentMilestones', 'gallery', 'files', 'team.user', 'invoices']);
     }
 

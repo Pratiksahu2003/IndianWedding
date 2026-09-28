@@ -1,7 +1,9 @@
-<div class="mx-auto max-w-6xl">
-<h1 class="font-[Cormorant_Garamond] text-4xl">Gallery</h1>
+<div class="mx-auto max-w-6xl pt-8">
+    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-[#c4a574]">Delivery</p>
+    <h1 class="mt-2 font-[Cormorant_Garamond] text-4xl">Gallery</h1>
+    <p class="mt-2 text-sm text-white/55">Preview and favourite photos from your wedding.</p>
 @if (! $gallery)
-    <p class="mt-8 text-white/60">Your preview is being prepared.</p>
+    <p class="mt-10 rounded-2xl border border-dashed border-white/15 px-6 py-10 text-center text-sm text-white/50">Your gallery preview is being prepared. We will notify you when it is ready.</p>
 @else
     <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         @foreach ($gallery->items as $item)

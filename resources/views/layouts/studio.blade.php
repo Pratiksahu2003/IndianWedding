@@ -18,7 +18,7 @@
     $nav = [
         'Overview' => [
             ['app.dashboard', 'Dashboard', 'home', 'app.dashboard'],
-            ['app.reports.index', 'Reports', 'reports', 'app.reports.*'],
+            ['app.reports.index', 'Reports', 'reports', 'app.reports.*', 'reports.view'],
             ['app.calendar', 'Calendar', 'calendar', 'app.calendar'],
         ],
         'Pipeline' => [
@@ -26,7 +26,7 @@
             ['app.leads.pipeline', 'Pipeline', 'pipeline', 'app.leads.pipeline'],
             ['app.consultations.index', 'Consultations', 'consult', 'app.consultations.*'],
         ],
-        'Production' => [
+        'Operations' => [
             ['app.clients.index', 'Clients', 'clients', 'app.clients.*'],
             ['app.projects.index', 'Projects', 'projects', 'app.projects.*'],
             ['app.tasks.index', 'Tasks', 'tasks', 'app.tasks.*'],
@@ -39,9 +39,14 @@
         'Delivery' => [
             ['app.files.index', 'Files', 'files', 'app.files.*'],
         ],
+        'Services' => [
+            ['app.packages.index', 'Packages & services', 'packages', 'app.packages.*'],
+        ],
+        'Production' => [
+            ['app.production.index', 'Creative projects', 'packages', 'app.production.*'],
+        ],
         'Studio' => [
-            ['app.packages.index', 'Services', 'packages', 'app.packages.*'],
-            ['app.website', 'Website', 'website', 'app.website'],
+            ['app.website', 'Website CMS', 'website', 'app.website'],
             ['app.settings.index', 'Studio profile', 'settings', 'app.settings.index'],
             ['app.settings.payments', 'Payment gateway', 'payments', 'app.settings.payments', 'settings.manage'],
             ['app.settings.email', 'Email / SMTP', 'mail', 'app.settings.email', 'settings.manage'],
@@ -78,7 +83,7 @@
                             @endphp
                             @continue($permission && ! $user?->canInOrganization($permission, \App\Support\Tenant::current()))
                             @php $active = collect(explode('|', $match))->contains(fn ($pattern) => request()->routeIs($pattern)); @endphp
-                            <a href="{{ route($route) }}" @click="sidebar=false" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition {{ $active ? 'bg-white/10 text-[#e2c48a] shadow-inner' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">
+                            <a href="{{ route($route) }}" @click="sidebar=false" class="flex items-center gap-3 rounded-xl py-2.5 text-sm transition {{ $active ? 'border-l-2 border-[#c4a574] bg-white/10 pl-[10px] pr-3 text-[#e2c48a]' : 'border-l-2 border-transparent px-3 text-white/70 hover:bg-white/5 hover:text-white' }}">
                                 <x-studio.icon :name="$icon" class="h-[18px] w-[18px]" />
                                 <span>{{ $label }}</span>
                             </a>
@@ -89,13 +94,13 @@
         </nav>
 
         <div class="shrink-0 border-t border-white/10 bg-[#14110e] p-3">
-            <div class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
+            <a href="{{ route('profile.edit') }}" @click="sidebar=false" class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3 transition hover:bg-white/10">
                 <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#c4a574] text-sm font-semibold text-[#16120f]">{{ $initials }}</div>
                 <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-medium">{{ $user?->name }}</p>
-                    <p class="truncate text-xs text-white/45">{{ $role?->label() ?? 'Staff' }}</p>
+                    <p class="truncate text-xs text-white/45">{{ $role?->label() ?? 'Staff' }} · Edit profile</p>
                 </div>
-            </div>
+            </a>
             <form method="POST" action="{{ route('logout') }}" class="mt-2">
                 @csrf
                 <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/55 transition hover:bg-white/5 hover:text-white">
@@ -126,16 +131,16 @@
                         <span class="hidden pr-1 text-sm md:inline">{{ $user?->name }}</span>
                     </button>
                     <div x-show="userMenu" x-cloak @click.outside="userMenu=false" class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5">
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">My profile</a>
                         <a href="{{ route('app.settings.index') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Settings</a>
-                        <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website content</a>
-                        <a href="{{ route('client.dashboard') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Client view</a>
+                        <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website CMS</a>
                         <form method="POST" action="{{ route('logout') }}">@csrf<button class="w-full px-4 py-2.5 text-left hover:bg-[#f6f1ea]">Sign out</button></form>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 px-4 py-6 md:px-8 md:py-8">
+        <main class="flex-1 bg-[#f4eee6] px-4 py-6 md:px-8 md:py-8">
             <x-swal-flash />
             {{ $slot }}
         </main>

@@ -15,13 +15,10 @@
     <h2 class="mt-3 font-[Cormorant_Garamond] text-4xl">{{ site('home.services_heading') }}</h2>
     <div class="mt-10 grid gap-6 md:grid-cols-3">
         @foreach ($packages as $package)
-            <article class="rounded-[28px] bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-                <h3 class="font-[Cormorant_Garamond] text-3xl">{{ $package->name }}</h3>
-                <p class="mt-3 text-sm leading-relaxed text-[#16120f]/70">{{ $package->description }}</p>
-                <a href="{{ $package->publicUrl() }}" class="mt-4 inline-block text-sm text-[#9b7b4b]">View service →</a>
-            </article>
+            <x-public.package-card :package="$package" :show-price="false" :feature-limit="2" compact />
         @endforeach
     </div>
+    <a href="/services" class="mt-8 inline-block text-sm text-[#9b7b4b]">View all services →</a>
 </section>
 
 <section class="mx-auto mt-24 max-w-6xl px-6" data-scroll>

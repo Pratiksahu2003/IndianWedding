@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Client;
 
-use App\Models\Customer;
+use App\Support\ClientPortal;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -13,8 +13,8 @@ class Timeline extends Component
 {
     public function render()
     {
-        $customer = Customer::query()->where('user_id', auth()->id())->firstOrFail();
-        $project = $customer->projects()->with('milestones')->latest()->first();
+        $customer = ClientPortal::customer();
+        $project = $customer?->projects()->with('milestones')->latest()->first();
 
         return view('livewire.client.timeline', compact('project'));
     }

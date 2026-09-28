@@ -18,6 +18,7 @@ use App\Livewire\Client\Payments as ClientPayments;
 use App\Livewire\Client\ProjectShow as ClientProject;
 use App\Livewire\Client\Timeline as ClientTimeline;
 use App\Livewire\Platform\WebsiteEditor;
+use App\Livewire\Profile\Edit as ProfileEdit;
 use App\Livewire\Studio\Calendar\Index as CalendarIndex;
 use App\Livewire\Studio\Clients\Create as ClientsCreate;
 use App\Livewire\Studio\Clients\Edit as ClientsEdit;
@@ -38,6 +39,9 @@ use App\Livewire\Studio\Packages\Create as PackagesCreate;
 use App\Livewire\Studio\Packages\Edit as PackagesEdit;
 use App\Livewire\Studio\Packages\Index as PackagesIndex;
 use App\Livewire\Studio\Packages\Show as PackageShow;
+use App\Livewire\Studio\Production\Create as ProductionCreate;
+use App\Livewire\Studio\Production\Edit as ProductionEdit;
+use App\Livewire\Studio\Production\Index as ProductionIndex;
 use App\Livewire\Studio\Payments\Create as PaymentsCreate;
 use App\Livewire\Studio\Payments\Index as PaymentsIndex;
 use App\Livewire\Studio\Projects\Create as ProjectsCreate;
@@ -63,12 +67,13 @@ Route::get('/robots.txt', [SeoController::class, 'robots']);
 Route::get('/sitemap.xml', [SeoController::class, 'sitemap']);
 
 Route::get('/', [WebsiteController::class, 'home'])->name('home');
+Route::get('/production/{slug}', [WebsiteController::class, 'production'])->name('public.production.show');
 Route::get('/services/{slug}', [WebsiteController::class, 'service'])->name('public.services.show');
 Route::get('/packages/{slug}', [WebsiteController::class, 'service'])->name('public.packages.show');
 Route::get('/projects/{slug}', [WebsiteController::class, 'project'])->name('public.projects.show');
 Route::get('/portfolio/{slug}', [WebsiteController::class, 'project'])->name('public.portfolio.show');
 Route::get('/{page}', [WebsiteController::class, 'page'])
-    ->whereIn('page', ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy']);
+    ->whereIn('page', ['about', 'services', 'production', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'terms-and-conditions', 'privacy-policy', 'cookie-policy']);
 
 Route::post('/inquiry', [InquiryController::class, 'store'])
     ->middleware('throttle:8,1')
@@ -94,11 +99,13 @@ Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify']);
 Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'store']);
 
 Route::middleware(['auth', 'tenant'])->group(function () {
+    Route::get('/profile', ProfileEdit::class)->name('profile.edit');
+
     Route::get('/files/signed', [FileAccessController::class, 'signed'])->name('files.signed');
     Route::get('/files/{file}', [FileAccessController::class, 'show'])->name('files.show');
     Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');
 
-    Route::prefix('app')->name('app.')->group(function () {
+    Route::prefix('app')->name('app.')->middleware('studio.staff')->group(function () {
         Route::get('/', StudioDashboard::class)->name('dashboard');
         Route::get('/leads', LeadsIndex::class)->name('leads.index');
         Route::get('/leads/pipeline', LeadsPipeline::class)->name('leads.pipeline');
@@ -114,6 +121,9 @@ Route::middleware(['auth', 'tenant'])->group(function () {
         Route::get('/packages/create', PackagesCreate::class)->name('packages.create');
         Route::get('/packages/{package}/edit', PackagesEdit::class)->name('packages.edit');
         Route::get('/packages/{package}', PackageShow::class)->name('packages.show');
+        Route::get('/production', ProductionIndex::class)->name('production.index');
+        Route::get('/production/create', ProductionCreate::class)->name('production.create');
+        Route::get('/production/{project}/edit', ProductionEdit::class)->name('production.edit');
         Route::get('/projects', ProjectsIndex::class)->name('projects.index');
         Route::get('/projects/create', ProjectsCreate::class)->name('projects.create');
         Route::get('/projects/{project}/edit', ProjectsEdit::class)->name('projects.edit');

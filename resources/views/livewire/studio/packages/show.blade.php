@@ -31,13 +31,21 @@
                 <li>{{ $package->duration_hours }} hours</li>
                 <li>{{ $package->photographer_count }} photographers · {{ $package->videographer_count }} videographers</li>
                 <li>{{ $package->edited_photos }} edited photos</li>
-                <li>Album: {{ $package->includes_album ? 'Yes' : 'No' }}</li>
-                <li>Film: {{ $package->includes_video ? 'Yes' : 'No' }}</li>
-                <li>Pre-wedding: {{ $package->includes_pre_wedding ? 'Yes' : 'No' }}</li>
-                <li>Drone: {{ $package->includes_drone ? 'Yes' : 'No' }}</li>
+                @forelse ($package->activeIncludes() as $include)
+                    <li>{{ $include }}</li>
+                @empty
+                    <li class="opacity-50">No includes selected.</li>
+                @endforelse
+                <li>YouTube: {{ $package->hasYoutubeVideo() ? 'Linked' : 'Not set' }}</li>
             </ul>
         </section>
     </div>
+    @if ($package->hasYoutubeVideo())
+        <section class="rounded-3xl bg-white p-6">
+            <h2 class="text-xs uppercase tracking-[0.2em] opacity-50">Service video</h2>
+            <x-youtube-embed :url="$package->youtube_url" :title="$package->name" class="mt-4 max-w-2xl" />
+        </section>
+    @endif
     <section class="rounded-3xl bg-white p-6">
         <h2 class="text-xs uppercase tracking-[0.2em] opacity-50">Projects using this service</h2>
         <ul class="mt-4 divide-y divide-[#16120f]/5 text-sm">

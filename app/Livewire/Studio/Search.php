@@ -17,11 +17,31 @@ class Search extends Component
 
     public function render()
     {
+        $user = auth()->user();
+        $empty = [
+            'leads' => collect(),
+            'clients' => collect(),
+            'projects' => collect(),
+            'invoices' => collect(),
+            'payments' => collect(),
+            'files' => collect(),
+        ];
+
+        if (! $user?->roleIn()?->isStaff() && ! $user?->hasFullStudioAccess()) {
+            return view('livewire.studio.search', ['results' => $empty]);
+        }
+
         $q = trim($this->q);
         $results = [
-            'leads' => $q ? Lead::query()->where('name', 'like', "%{$q}%")->orWhere('lead_number', 'like', "%{$q}%")->limit(5)->get() : collect(),
+            'leads' => $q ? Lead::query()->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('lead_number', 'like', "%{$q}%");
+            })->limit(5)->get() : collect(),
             'clients' => $q ? Customer::query()->where('name', 'like', "%{$q}%")->limit(5)->get() : collect(),
-            'projects' => $q ? Project::query()->where('title', 'like', "%{$q}%")->orWhere('project_number', 'like', "%{$q}%")->limit(5)->get() : collect(),
+            'projects' => $q ? Project::query()->where(function ($query) use ($q) {
+                $query->where('title', 'like', "%{$q}%")
+                    ->orWhere('project_number', 'like', "%{$q}%");
+            })->limit(5)->get() : collect(),
             'invoices' => $q ? Invoice::query()->where('invoice_number', 'like', "%{$q}%")->limit(5)->get() : collect(),
             'payments' => $q ? Payment::query()->where('reference', 'like', "%{$q}%")->limit(5)->get() : collect(),
             'files' => $q ? MediaFile::query()->where('original_name', 'like', "%{$q}%")->limit(5)->get() : collect(),

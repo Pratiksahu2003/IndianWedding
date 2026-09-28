@@ -107,4 +107,36 @@ class UnikStudioAssets
             'music-video-shoot' => 'service-music.jpg',
         ];
     }
+
+    /**
+     * Stable placeholder cover for cards without an upload — each seed maps to a different image.
+     */
+    public static function placeholderCover(int|string $seed, ?string $context = null): string
+    {
+        $pool = self::placeholderPool($context);
+        $index = abs(crc32((string) $seed)) % count($pool);
+
+        return self::url($pool[$index]);
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function placeholderPool(?string $context = null): array
+    {
+        $portfolio = array_map(
+            fn (int $n) => sprintf('portfolio-%02d.jpg', $n),
+            range(1, 20),
+        );
+
+        $services = array_values(self::serviceCovers());
+
+        $pool = match ($context) {
+            'production' => array_merge(['service-cinema.jpg', 'service-music.jpg'], $portfolio),
+            'wedding' => array_merge(['service-wedding.jpg', 'service-prewedding.jpg', 'service-candid.jpg'], $portfolio),
+            default => array_values(array_unique(array_merge($services, $portfolio))),
+        };
+
+        return $pool;
+    }
 }

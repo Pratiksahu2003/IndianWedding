@@ -17,14 +17,5 @@
         <div class="cms-rich rounded-[28px] bg-white p-8 leading-relaxed">{!! site_rich('about.mission') !!}</div>
         <div class="cms-rich rounded-[28px] bg-white p-8 leading-relaxed">{!! site_rich('about.vision') !!}</div>
     </div>
-    <h2 class="mt-20 font-[Cormorant_Garamond] text-4xl">{{ site('about.team_heading') }}</h2>
-    <div class="mt-8 grid gap-6 md:grid-cols-3">
-        @foreach ($team as $member)
-            <article class="rounded-[28px] bg-white p-8">
-                <h3 class="font-[Cormorant_Garamond] text-3xl">{{ $member->name }}</h3>
-                <p class="mt-2 text-sm opacity-60">{{ $member->role }}</p>
-            </article>
-        @endforeach
-    </div>
 </section>
 @endsection

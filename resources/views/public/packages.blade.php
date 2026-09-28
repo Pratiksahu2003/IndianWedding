@@ -1,25 +1,104 @@
 @extends('layouts.public')
 @section('content')
 <section class="mx-auto max-w-6xl px-6 py-20">
-    <h1 class="font-[Cormorant_Garamond] text-5xl">{{ site('nav.packages', 'Pricing Page') }}</h1>
-    <p class="mt-4 max-w-2xl text-lg opacity-70">{{ site('services.intro') }}</p>
-    <div class="mt-10 grid gap-6 md:grid-cols-3">
-        @forelse ($packages as $package)
-            <article class="rounded-[28px] bg-white p-8">
-                <h2 class="font-[Cormorant_Garamond] text-3xl"><a href="{{ $package->publicUrl() }}">{{ $package->name }}</a></h2>
-                <div class="cms-rich mt-3 text-sm opacity-70">{!! rich_html($package->description) !!}</div>
-                <p class="mt-4 text-lg">{{ \App\Support\Money::format($package->price) }}</p>
-                <ul class="mt-4 space-y-1 text-sm opacity-80">
-                    @foreach ($package->items as $item)
-                        <li>{{ $item->name }}</li>
-                    @endforeach
-                </ul>
-                <a href="{{ $package->publicUrl() }}" class="mt-6 inline-block text-sm text-[#9b7b4b]">View details</a>
-                <a href="/book-consultation" class="mt-6 inline-block rounded-full bg-[#16120f] px-4 py-2 text-sm text-white">{{ site('home.cta') }}</a>
-            </article>
-        @empty
-            <p>No public packages yet.</p>
-        @endforelse
+    <p class="text-sm uppercase tracking-[0.25em] text-[#9b7b4b]">Pricing</p>
+    <h1 class="mt-4 font-[Cormorant_Garamond] text-5xl">{{ site('packages.heading', 'Wedding Photography & Videography Packages') }}</h1>
+    <p class="mt-4 max-w-3xl text-lg opacity-70">{{ site('packages.intro') }}</p>
+
+    {{-- Quick links --}}
+    <div class="mt-10 flex flex-wrap gap-3">
+        <a href="/services" class="inline-flex items-center gap-2 rounded-full bg-[#16120f] px-5 py-2.5 text-sm text-white transition hover:bg-[#2a241f]">
+            All services
+            <span aria-hidden="true">→</span>
+        </a>
+        <a href="/production" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm ring-1 ring-black/10 transition hover:bg-[#f6f1ea]">
+            Production & films
+            <span aria-hidden="true">→</span>
+        </a>
+        <a href="/book-consultation" class="inline-flex items-center gap-2 rounded-full bg-[#c4a574] px-5 py-2.5 text-sm text-[#16120f] transition hover:bg-[#d4b888]">
+            {{ site('home.cta', 'Book Consultant') }}
+        </a>
     </div>
+
+    {{-- Wedding packages --}}
+    <div class="mt-16">
+        <h2 class="font-[Cormorant_Garamond] text-4xl">Wedding packages</h2>
+        <p class="mt-2 max-w-2xl text-sm opacity-60">Fixed pricing tiers for photography, videography and albums — tap a card for the full breakdown.</p>
+        <div class="mt-8 grid gap-6 md:grid-cols-2">
+            @forelse ($packages as $package)
+                <x-public.package-card :package="$package" :feature-limit="6" />
+            @empty
+                <p class="col-span-full text-sm opacity-60">Wedding packages will appear here once added in the studio.</p>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- Services preview --}}
+    @if (($services ?? collect())->isNotEmpty())
+        <div class="mt-20">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <h2 class="font-[Cormorant_Garamond] text-4xl">{{ site('services.heading', 'Our Services') }}</h2>
+                    <p class="mt-2 max-w-2xl text-sm opacity-60">{{ site('services.intro') }}</p>
+                </div>
+                <a href="/services" class="shrink-0 rounded-full bg-white px-5 py-2.5 text-sm font-medium ring-1 ring-black/10 transition hover:bg-[#f6f1ea]">
+                    View all services →
+                </a>
+            </div>
+            <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($services->take(6) as $service)
+                    <x-public.package-card :package="$service" :show-price="false" :feature-limit="3" compact />
+                @endforeach
+            </div>
+        </div>
+    @endif
+
+    {{-- Production preview --}}
+    @if (($productionProjects ?? collect())->isNotEmpty() || ($productionPackages ?? collect())->isNotEmpty())
+        <div class="mt-20">
+            <div class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <h2 class="font-[Cormorant_Garamond] text-4xl">{{ site('production.heading', 'Production & Creative Services') }}</h2>
+                    <p class="mt-2 max-w-2xl text-sm opacity-60">{{ site('production.intro') }}</p>
+                </div>
+                <a href="/production" class="shrink-0 rounded-full bg-white px-5 py-2.5 text-sm font-medium ring-1 ring-black/10 transition hover:bg-[#f6f1ea]">
+                    View all production →
+                </a>
+            </div>
+
+            @if (($productionProjects ?? collect())->isNotEmpty())
+                <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-[#9b7b4b]">Featured projects</h3>
+                <div class="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($productionProjects as $project)
+                        <x-public.production-project-card :project="$project" />
+                    @endforeach
+                </div>
+            @endif
+
+            @if (($productionPackages ?? collect())->isNotEmpty())
+                <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-[#9b7b4b]">Production services</h3>
+                <div class="mt-5 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($productionPackages->take(6) as $productionPackage)
+                        <x-public.package-card :package="$productionPackage" :show-price="false" :feature-limit="4" />
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
+
+    {{-- Add-ons --}}
+    @if (($addons ?? collect())->isNotEmpty())
+        <div class="mt-20">
+            <h2 class="font-[Cormorant_Garamond] text-4xl">{{ site('packages.addons_heading', 'Wedding Add-On Services') }}</h2>
+            <div class="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach ($addons as $addon)
+                    <div class="rounded-2xl bg-white px-5 py-4 text-sm shadow-sm ring-1 ring-black/5">{{ $addon->name }}</div>
+                @endforeach
+            </div>
+            @if (site('packages.addons_note'))
+                <p class="mt-6 text-sm opacity-60">{{ site('packages.addons_note') }}</p>
+            @endif
+        </div>
+    @endif
 </section>
 @endsection
