@@ -59,7 +59,7 @@
                 @if ($project->project_date)<li><span class="text-[#16120f]/45">Date</span><br>{{ $project->project_date->toFormattedDateString() }}</li>@endif
                 <li><span class="text-[#16120f]/45">Category</span><br>{{ str_replace('-', ' ', $project->category ?? 'Production') }}</li>
             </ul>
-            <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'MAKE RESERVATION') }}</a>
+            <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'BOOK CONSULTANT') }}</a>
         </aside>
     </section>
 

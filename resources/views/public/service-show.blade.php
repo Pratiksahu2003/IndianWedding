@@ -64,7 +64,7 @@
                     <li>{{ $include }}</li>
                 @endforeach
             </ul>
-            <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'MAKE RESERVATION') }}</a>
+            <a href="/book-consultation" class="mt-8 inline-block w-full rounded-full bg-[#16120f] px-5 py-3 text-center text-white">{{ site('home.cta', 'BOOK CONSULTANT') }}</a>
             <a href="/packages" class="mt-3 inline-block w-full text-center text-sm text-[#9b7b4b]">View pricing page</a>
         </aside>
     </section>

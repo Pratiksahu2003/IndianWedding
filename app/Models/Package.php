@@ -122,10 +122,12 @@ class Package extends Model
             return \App\Support\UnikStudioAssets::url($covers[$this->slug]);
         }
 
-        return match ($this->package_type) {
-            'wedding' => \App\Support\UnikStudioAssets::url('service-wedding.jpg'),
-            'production' => \App\Support\UnikStudioAssets::url('service-cinema.jpg'),
-            default => \App\Support\UnikStudioAssets::url('hero-slide.png'),
+        $context = match ($this->package_type) {
+            'wedding', 'destination' => 'wedding',
+            'production', 'music_video' => 'production',
+            default => null,
         };
+
+        return \App\Support\UnikStudioAssets::placeholderCover($this->id ?? $this->slug, $context);
     }
 }

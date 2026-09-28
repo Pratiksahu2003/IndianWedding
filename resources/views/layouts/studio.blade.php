@@ -94,13 +94,13 @@
         </nav>
 
         <div class="shrink-0 border-t border-white/10 bg-[#14110e] p-3">
-            <div class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3">
+            <a href="{{ route('profile.edit') }}" @click="sidebar=false" class="flex items-center gap-3 rounded-2xl bg-white/5 px-3 py-3 transition hover:bg-white/10">
                 <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#c4a574] text-sm font-semibold text-[#16120f]">{{ $initials }}</div>
                 <div class="min-w-0 flex-1">
                     <p class="truncate text-sm font-medium">{{ $user?->name }}</p>
-                    <p class="truncate text-xs text-white/45">{{ $role?->label() ?? 'Staff' }}</p>
+                    <p class="truncate text-xs text-white/45">{{ $role?->label() ?? 'Staff' }} · Edit profile</p>
                 </div>
-            </div>
+            </a>
             <form method="POST" action="{{ route('logout') }}" class="mt-2">
                 @csrf
                 <button type="submit" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/55 transition hover:bg-white/5 hover:text-white">
@@ -131,6 +131,7 @@
                         <span class="hidden pr-1 text-sm md:inline">{{ $user?->name }}</span>
                     </button>
                     <div x-show="userMenu" x-cloak @click.outside="userMenu=false" class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5">
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">My profile</a>
                         <a href="{{ route('app.settings.index') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Settings</a>
                         <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website CMS</a>
                         @if ($role === \App\Enums\Role::Client)

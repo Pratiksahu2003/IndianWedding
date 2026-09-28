@@ -19,6 +19,7 @@
             ['client.timeline', 'Timeline', request()->routeIs('client.timeline')],
             ['client.payments', 'Payments', request()->routeIs('client.payments')],
             ['client.gallery', 'Gallery', request()->routeIs('client.gallery')],
+            ['profile.edit', 'Profile', request()->routeIs('profile.edit')],
         ]);
     @endphp
     <header class="sticky top-0 z-30 border-b border-white/10 bg-[#16120f]/95 px-4 py-4 backdrop-blur-xl md:px-6" x-data="{ open: false }">

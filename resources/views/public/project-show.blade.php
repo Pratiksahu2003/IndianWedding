@@ -27,7 +27,7 @@
                 <p>{{ $item->title }} — a Unik Studio film and photograph story from {{ $item->location ?: 'New Delhi' }}.</p>
             @endforelse
         </div>
-        <a href="/book-consultation" class="mt-10 inline-block rounded-full bg-[#16120f] px-6 py-3 text-white">{{ site('home.cta', 'MAKE RESERVATION') }}</a>
+        <a href="/book-consultation" class="mt-10 inline-block rounded-full bg-[#16120f] px-6 py-3 text-white">{{ site('home.cta', 'BOOK CONSULTANT') }}</a>
     </section>
 
     @if ($related->isNotEmpty())

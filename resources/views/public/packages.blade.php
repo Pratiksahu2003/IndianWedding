@@ -16,7 +16,7 @@
             <span aria-hidden="true">→</span>
         </a>
         <a href="/book-consultation" class="inline-flex items-center gap-2 rounded-full bg-[#c4a574] px-5 py-2.5 text-sm text-[#16120f] transition hover:bg-[#d4b888]">
-            {{ site('home.cta', 'Make reservation') }}
+            {{ site('home.cta', 'Book Consultant') }}
         </a>
     </div>
 

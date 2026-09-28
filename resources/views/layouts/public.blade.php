@@ -68,7 +68,7 @@
                     <a href="{{ $href }}" class="rounded-full px-2.5 py-1.5 transition 2xl:px-3 2xl:py-2 {{ $active ? 'bg-white/10 text-[#e2c48a]' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">{{ $label }}</a>
                 @endforeach
                 <a href="{{ $loginHref }}" class="ml-1 shrink-0 rounded-full border border-white/20 px-3 py-1.5 transition 2xl:ml-2 2xl:px-3 2xl:py-2 {{ $loginActive ? 'bg-white/10 text-[#e2c48a]' : 'text-white/80 hover:bg-white/5 hover:text-white' }}">{{ $loginLabel }}</a>
-                <a href="/book-consultation" class="ml-1 shrink-0 rounded-full bg-[#c4a574] px-3 py-1.5 text-[#16120f] shadow-sm transition hover:bg-[#d4b888] 2xl:ml-1 2xl:px-4 2xl:py-2">{{ site('nav.reservation', 'Make Reservation') }}</a>
+                <a href="/book-consultation" class="ml-1 shrink-0 rounded-full bg-[#c4a574] px-3 py-1.5 text-[#16120f] shadow-sm transition hover:bg-[#d4b888] 2xl:ml-1 2xl:px-4 2xl:py-2">{{ site('nav.reservation', 'Book Consultant') }}</a>
             </nav>
             <div class="flex shrink-0 items-center gap-2 2xl:hidden">
                 <a href="{{ $loginHref }}" class="inline-flex h-10 items-center rounded-full border border-white/20 px-3.5 text-xs font-medium text-white/85 transition hover:bg-white/5 hover:text-white sm:px-4 sm:text-sm {{ $loginActive ? 'bg-white/10 text-[#e2c48a]' : '' }}">{{ $loginLabel }}</a>
@@ -85,7 +85,7 @@
                 @endforeach
                 <a href="/faq" class="rounded-xl px-3 py-2.5 text-white/80">{{ site('nav.faq', 'FAQ') }}</a>
                 <a href="{{ $loginHref }}" class="rounded-xl px-3 py-2.5 {{ $loginActive ? 'bg-white/10 text-[#e2c48a]' : 'text-white/80' }}">{{ $loginLabel }}</a>
-                <a href="/book-consultation" class="mt-2 rounded-full bg-[#c4a574] px-4 py-3 text-center font-medium text-[#16120f]">{{ site('nav.reservation', 'Make Reservation') }}</a>
+                <a href="/book-consultation" class="mt-2 rounded-full bg-[#c4a574] px-4 py-3 text-center font-medium text-[#16120f]">{{ site('nav.reservation', 'Book Consultant') }}</a>
             </div>
         </div>
     </header>
@@ -102,7 +102,7 @@
                 </a>
                 <p class="mt-5 max-w-sm text-sm leading-relaxed text-white/60">{{ site('footer.blurb') }}</p>
                 <x-social-links class="mt-6" />
-                <a href="/book-consultation" class="mt-6 inline-flex rounded-full bg-[#c4a574] px-5 py-2.5 text-sm font-medium text-[#16120f] transition hover:bg-[#d4b888]">{{ site('nav.reservation', 'Make Reservation') }}</a>
+                <a href="/book-consultation" class="mt-6 inline-flex rounded-full bg-[#c4a574] px-5 py-2.5 text-sm font-medium text-[#16120f] transition hover:bg-[#d4b888]">{{ site('nav.reservation', 'Book Consultant') }}</a>
             </div>
             <div class="md:col-span-3">
                 <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c4a574]">{{ site('footer.links_heading', 'Links') }}</p>

@@ -18,6 +18,7 @@ use App\Livewire\Client\Payments as ClientPayments;
 use App\Livewire\Client\ProjectShow as ClientProject;
 use App\Livewire\Client\Timeline as ClientTimeline;
 use App\Livewire\Platform\WebsiteEditor;
+use App\Livewire\Profile\Edit as ProfileEdit;
 use App\Livewire\Studio\Calendar\Index as CalendarIndex;
 use App\Livewire\Studio\Clients\Create as ClientsCreate;
 use App\Livewire\Studio\Clients\Edit as ClientsEdit;
@@ -98,6 +99,8 @@ Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify']);
 Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'store']);
 
 Route::middleware(['auth', 'tenant'])->group(function () {
+    Route::get('/profile', ProfileEdit::class)->name('profile.edit');
+
     Route::get('/files/signed', [FileAccessController::class, 'signed'])->name('files.signed');
     Route::get('/files/{file}', [FileAccessController::class, 'show'])->name('files.show');
     Route::get('/invoices/{invoice}/pdf', InvoicePdfController::class)->name('invoices.pdf');

@@ -62,7 +62,7 @@
     <div class="mt-16 rounded-[28px] bg-[#16120f] px-8 py-10 text-center text-white">
         <p class="font-[Cormorant_Garamond] text-3xl text-[#e2c48a]">{{ site('production.tagline', 'Your Story. Our Lens. Forever.') }}</p>
         <p class="mx-auto mt-4 max-w-2xl text-sm text-white/75">{{ site('production.tagline_body') }}</p>
-        <a href="/book-consultation" class="mt-8 inline-block rounded-full bg-[#c4a574] px-8 py-3 text-[#16120f]">{{ site('home.cta', 'MAKE RESERVATION') }}</a>
+        <a href="/book-consultation" class="mt-8 inline-block rounded-full bg-[#c4a574] px-8 py-3 text-[#16120f]">{{ site('home.cta', 'BOOK CONSULTANT') }}</a>
     </div>
 </section>
 @endsection

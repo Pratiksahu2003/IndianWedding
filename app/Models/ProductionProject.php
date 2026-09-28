@@ -58,7 +58,10 @@ class ProductionProject extends Model
             return $this->cover_image;
         }
 
-        return $this->images->first()?->url()
-            ?? \App\Support\UnikStudioAssets::url('hero-slide.png');
+        if ($this->images->isNotEmpty()) {
+            return $this->images->first()->url();
+        }
+
+        return \App\Support\UnikStudioAssets::placeholderCover($this->id ?? $this->slug, 'production');
     }
 }
