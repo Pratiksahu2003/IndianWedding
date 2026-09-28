@@ -78,7 +78,7 @@
                             @endphp
                             @continue($permission && ! $user?->canInOrganization($permission, \App\Support\Tenant::current()))
                             @php $active = collect(explode('|', $match))->contains(fn ($pattern) => request()->routeIs($pattern)); @endphp
-                            <a href="{{ route($route) }}" @click="sidebar=false" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition {{ $active ? 'bg-white/10 text-[#e2c48a] shadow-inner' : 'text-white/70 hover:bg-white/5 hover:text-white' }}">
+                            <a href="{{ route($route) }}" @click="sidebar=false" class="flex items-center gap-3 rounded-xl py-2.5 text-sm transition {{ $active ? 'border-l-2 border-[#c4a574] bg-white/10 pl-[10px] pr-3 text-[#e2c48a]' : 'border-l-2 border-transparent px-3 text-white/70 hover:bg-white/5 hover:text-white' }}">
                                 <x-studio.icon :name="$icon" class="h-[18px] w-[18px]" />
                                 <span>{{ $label }}</span>
                             </a>
@@ -128,14 +128,16 @@
                     <div x-show="userMenu" x-cloak @click.outside="userMenu=false" class="absolute right-0 mt-2 w-52 overflow-hidden rounded-2xl bg-white py-1 text-sm shadow-xl ring-1 ring-black/5">
                         <a href="{{ route('app.settings.index') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Settings</a>
                         <a href="{{ route('app.website') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Website content</a>
-                        <a href="{{ route('client.dashboard') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Client view</a>
+                        @if ($role === \App\Enums\Role::Client)
+                            <a href="{{ route('client.dashboard') }}" class="block px-4 py-2.5 hover:bg-[#f6f1ea]">Client view</a>
+                        @endif
                         <form method="POST" action="{{ route('logout') }}">@csrf<button class="w-full px-4 py-2.5 text-left hover:bg-[#f6f1ea]">Sign out</button></form>
                     </div>
                 </div>
             </div>
         </header>
 
-        <main class="flex-1 px-4 py-6 md:px-8 md:py-8">
+        <main class="flex-1 bg-[#f4eee6] px-4 py-6 md:px-8 md:py-8">
             <x-swal-flash />
             {{ $slot }}
         </main>

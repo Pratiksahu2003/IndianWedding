@@ -92,7 +92,7 @@
                         {{ str_replace('_', ' ', $file->kind->value) }}
                         @endif
                     </td>
-                    <td class="text-xs opacity-70">{{ Number::fileSize($file->size) }}</td>
+                    <td class="text-xs opacity-70">{{ \App\Support\Money::fileSize($file->size) }}</td>
                     <td class="px-4 py-3 text-right">
                         @if ($editingId === $file->id)
                         <button type="button" wire:click="updateFile" class="text-xs text-[#9b7b4b]">Save</button>

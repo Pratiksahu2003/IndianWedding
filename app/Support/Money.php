@@ -22,4 +22,17 @@ class Money
     {
         return (int) round(((float) $major) * 100);
     }
+
+    public static function fileSize(int $bytes): string
+    {
+        if ($bytes >= 1_048_576) {
+            return round($bytes / 1_048_576, 1).' MB';
+        }
+
+        if ($bytes >= 1024) {
+            return round($bytes / 1024, 1).' KB';
+        }
+
+        return $bytes.' B';
+    }
 }
