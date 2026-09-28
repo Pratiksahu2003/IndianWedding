@@ -45,7 +45,6 @@
             ['/packages', site('nav.packages', 'Packages'), request()->is('packages*')],
             ['/production', site('nav.production', 'Production'), request()->is('production*')],
             ['/gallery', site('nav.gallery', 'Gallery'), request()->is('gallery') || request()->is('portfolio*') || request()->is('projects*')],
-            ['/testimonials', site('nav.testimonials', 'Feedbacks'), request()->is('testimonials')],
             ['/contact', site('nav.contact', 'Contact'), request()->is('contact')],
         ];
         $loginActive = request()->routeIs('login', 'password.*');
@@ -114,6 +113,7 @@
                     <a class="transition hover:text-white" href="/packages">{{ site('nav.packages', 'Packages') }}</a>
                     <a class="transition hover:text-white" href="/production">{{ site('nav.production', 'Production') }}</a>
                     <a class="transition hover:text-white" href="/gallery">{{ site('nav.gallery', 'Gallery') }}</a>
+                    <a class="transition hover:text-white" href="/testimonials">{{ site('nav.testimonials', 'Feedbacks') }}</a>
                     <a class="transition hover:text-white" href="/contact">{{ site('nav.contact', 'Get in touch') }}</a>
                     <a class="transition hover:text-white" href="/login">Client / studio login</a>
                 </div>
