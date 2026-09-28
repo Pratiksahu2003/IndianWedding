@@ -26,7 +26,7 @@
             ['app.leads.pipeline', 'Pipeline', 'pipeline', 'app.leads.pipeline'],
             ['app.consultations.index', 'Consultations', 'consult', 'app.consultations.*'],
         ],
-        'Production' => [
+        'Operations' => [
             ['app.clients.index', 'Clients', 'clients', 'app.clients.*'],
             ['app.projects.index', 'Projects', 'projects', 'app.projects.*'],
             ['app.tasks.index', 'Tasks', 'tasks', 'app.tasks.*'],
@@ -39,8 +39,13 @@
         'Delivery' => [
             ['app.files.index', 'Files', 'files', 'app.files.*'],
         ],
+        'Services' => [
+            ['app.packages.index', 'All services', 'packages', 'app.packages.*'],
+        ],
+        'Production' => [
+            ['app.production.index', 'All projects', 'gallery', 'app.production.*'],
+        ],
         'Studio' => [
-            ['app.packages.index', 'Services', 'packages', 'app.packages.*'],
             ['app.website', 'Website CMS', 'website', 'app.website'],
             ['app.settings.index', 'Studio profile', 'settings', 'app.settings.index'],
             ['app.settings.payments', 'Payment gateway', 'payments', 'app.settings.payments', 'settings.manage'],

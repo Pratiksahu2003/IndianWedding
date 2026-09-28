@@ -62,6 +62,14 @@ class WebsiteCmsMenu
                 ],
             ],
             [
+                'id' => 'production',
+                'label' => 'Production page',
+                'url' => '/production',
+                'sections' => [
+                    ['id' => 'content', 'label' => 'Page content'],
+                ],
+            ],
+            [
                 'id' => 'packages',
                 'label' => 'Pricing page',
                 'url' => '/packages',

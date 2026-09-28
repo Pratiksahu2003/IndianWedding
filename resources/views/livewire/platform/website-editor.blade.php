@@ -46,11 +46,19 @@
                     </div>
                 @endforeach
 
-                <div class="mt-3 border-t border-black/5 pt-3">
-                    <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#16120f]/40">Service detail pages</p>
-                    <a href="{{ route('app.packages.index') }}" class="flex w-full rounded-xl px-3 py-2.5 text-sm text-[#9b7b4b] hover:bg-[#f6f1ea]">
-                        Edit services, prices & videos →
-                    </a>
+                <div class="mt-3 space-y-3 border-t border-black/5 pt-3">
+                    <div>
+                        <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#16120f]/40">Services menu</p>
+                        <a href="{{ route('app.packages.index') }}" class="flex w-full rounded-xl px-3 py-2.5 text-sm text-[#9b7b4b] hover:bg-[#f6f1ea]">
+                            Edit services, prices & videos →
+                        </a>
+                    </div>
+                    <div>
+                        <p class="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#16120f]/40">Production menu</p>
+                        <a href="{{ route('app.production.index') }}" class="flex w-full rounded-xl px-3 py-2.5 text-sm text-[#9b7b4b] hover:bg-[#f6f1ea]">
+                            Edit production projects & films →
+                        </a>
+                    </div>
                 </div>
             </nav>
         </aside>

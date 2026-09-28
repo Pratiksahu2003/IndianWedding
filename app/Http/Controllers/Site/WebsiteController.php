@@ -7,6 +7,7 @@ use App\Models\Faq;
 use App\Models\Organization;
 use App\Models\Package;
 use App\Models\PortfolioItem;
+use App\Models\ProductionProject;
 use App\Models\TeamMember;
 use App\Models\Testimonial;
 use App\Support\Tenant;
@@ -30,16 +31,28 @@ class WebsiteController extends Controller
     public function page(string $page): View
     {
         $org = $this->studio();
-        abort_unless(in_array($page, ['about', 'services', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy'], true), 404);
+        abort_unless(in_array($page, ['about', 'services', 'production', 'packages', 'portfolio', 'gallery', 'testimonials', 'faq', 'contact', 'book-consultation', 'our-team', 'terms-and-conditions', 'privacy-policy', 'cookie-policy'], true), 404);
 
-        return view('public.'.$page, [
+        $data = [
             'organization' => $org,
             'packages' => $org ? Package::withoutTenant()->with('items')->where('organization_id', $org->id)->where('is_public', true)->where('is_active', true)->orderBy('sort_order')->get() : collect(),
             'testimonials' => $org ? Testimonial::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->latest()->get() : collect(),
             'portfolio' => $org ? PortfolioItem::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
             'faqs' => $org ? Faq::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
             'team' => $org ? TeamMember::withoutTenant()->where('organization_id', $org->id)->where('is_published', true)->orderBy('sort_order')->get() : collect(),
-        ]);
+        ];
+
+        if ($page === 'production') {
+            $data['productionProjects'] = $org ? ProductionProject::withoutTenant()
+                ->with('images')
+                ->where('organization_id', $org->id)
+                ->where('is_public', true)
+                ->where('is_active', true)
+                ->orderBy('sort_order')
+                ->get() : collect();
+        }
+
+        return view('public.'.$page, $data);
     }
 
     public function service(string $slug): View
@@ -94,6 +107,37 @@ class WebsiteController extends Controller
             'gallery' => $gallery,
             'title' => $package->name.' — Unik Studio',
             'description' => Str::limit(strip_tags((string) $package->description), 160),
+        ]);
+    }
+
+    public function production(string $slug): View
+    {
+        $org = $this->studio();
+        abort_unless($org, 404);
+
+        $project = ProductionProject::withoutTenant()
+            ->with('images')
+            ->where('organization_id', $org->id)
+            ->where('slug', $slug)
+            ->where('is_public', true)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $related = ProductionProject::withoutTenant()
+            ->where('organization_id', $org->id)
+            ->where('is_public', true)
+            ->where('is_active', true)
+            ->where('id', '!=', $project->id)
+            ->orderBy('sort_order')
+            ->limit(3)
+            ->get();
+
+        return view('public.production-show', [
+            'organization' => $org,
+            'project' => $project,
+            'related' => $related,
+            'title' => $project->name.' — Unik Studio Production',
+            'description' => Str::limit(strip_tags((string) $project->description), 160),
         ]);
     }
 
